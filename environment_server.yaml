@@ -1,0 +1,35 @@
+name: drivemind-vl-server
+channels:
+  - pytorch
+  - nvidia
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.10
+  - pip
+  - pip:
+      - torch
+      - torchvision
+      - transformers
+      - accelerate
+      - peft
+      - datasets
+      - pillow
+      - opencv-python
+      - tqdm
+      - pandas
+      - numpy
+      - scikit-learn
+      - gradio==3.50.2
+      - jsonlines
+      - pyyaml
+      - qwen-vl-utils
+      - huggingface_hub<1.0
+      - modelscope
+      - jinja2>=3.1.4
+      - typing_extensions>=4.8.0
+      - psutil
+      - bitsandbytes
+      - sentencepiece
+      - protobuf
+

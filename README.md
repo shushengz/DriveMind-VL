@@ -78,6 +78,14 @@ bash scripts/01_install_env.sh --mvp-only
 
 Server-stage templates are reserved under `configs/` for Qwen2.5-VL-3B LoRA, Qwen2.5-VL-7B QLoRA, and offline reward/preference optimization. `scripts/10_server_train_placeholder.sh` only prints future steps and never launches training.
 
+## Real-Inference Smoke Test
+
+Use `docs/model_download.md` and `docs/real_infer_smoke_test.md` before server training. The first real-model target is Qwen2.5-VL-3B on 5 samples:
+
+```bash
+bash scripts/09_smoke_qwen25vl_3b.sh /mnt/models/Qwen2.5-VL-3B-Instruct
+```
+
 ## TODO
 
 - Replace synthetic perception with YOLO/GroundingDINO and Depth Anything V2.

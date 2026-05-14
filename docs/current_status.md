@@ -34,6 +34,8 @@ Updated after the local MVP implementation.
 - [x] Support `--max_samples`
 - [x] Support `--load_in_4bit` and `--load_in_8bit`
 - [x] Keep default path dry-run and no model download
+- [x] Add local/server conda environment templates
+- [x] Add model file checker
+- [x] Add 3B smoke-test script
 - [ ] Run 5 real samples after model files are prepared
 - [ ] Save real-model bad cases
-

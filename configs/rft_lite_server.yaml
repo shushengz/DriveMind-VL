@@ -1,0 +1,19 @@
+stage: preference_optimization
+description: Template for offline reward scoring plus DPO/ORPO/RFT-lite.
+input_predictions: outputs/eval_results/server_predictions.jsonl
+reward_script: src/rewards/total_reward.py
+preference_data: data/processed/drivemind_preferences.json
+methods:
+  - dpo
+  - orpo
+  - rft_lite
+scoring:
+  use_format_reward: true
+  use_task_reward: true
+  use_safety_reward: true
+  use_reasoning_reward: true
+todo:
+  - Generate chosen/rejected pairs from sampled model outputs.
+  - Add human review for safety-critical examples.
+  - Run DPO/ORPO only after SFT checkpoint quality is acceptable.
+

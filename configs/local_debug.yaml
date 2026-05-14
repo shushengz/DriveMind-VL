@@ -1,0 +1,13 @@
+stage: local_mvp
+dry_run: true
+seed_data: data/processed/drivemind_seed.jsonl
+converted_data: data/processed/drivemind_llamafactory_sft.json
+predictions: outputs/eval_results/base_predictions.jsonl
+metrics: outputs/eval_results/metrics.json
+model:
+  enabled: false
+  name_or_path: ""
+notes:
+  - Local 3080Ti phase only runs synthetic data, dry-run inference, eval, safety, reward, and demo.
+  - Do not download or train Qwen2.5-VL in this stage.
+

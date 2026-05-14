@@ -1,0 +1,12 @@
+pillow
+tqdm
+pandas
+numpy
+scikit-learn
+gradio==3.50.2
+huggingface_hub<1.0
+jinja2>=3.1.4
+jsonlines
+pyyaml
+typing_extensions>=4.8.0
+psutil

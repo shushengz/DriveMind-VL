@@ -57,6 +57,57 @@ SCHEMAS = {
 }
 
 
+ALLOWED_TOOLS = [
+    "set_ac_temperature",
+    "play_music",
+    "open_window",
+    "close_window",
+    "lock_door",
+    "unlock_door",
+    "open_door",
+    "close_door",
+    "enable_refresh_mode",
+    "remind_driver",
+]
+
+TASK_HINTS = {
+    "risk_reasoning": (
+        "For risk_reasoning, set task exactly to risk_reasoning. "
+        "risk_level must be one of low, medium, high. "
+        "Use high when distance_to_front_car <= 10 and speed >= 40, especially in rainy or night conditions. "
+        "Use high for pedestrian_crossing risk_hint. Use medium for blind_spot_vehicle or motorcycle_cut_in. "
+        "Use snake_case for risk_object and suggestion, for example front_car, pedestrian, "
+        "blind_spot_vehicle, slow_down, brake_and_warn, keep_attention."
+    ),
+    "tool_call": (
+        "For tool_call, set task exactly to tool_call. "
+        "Choose tool only from Allowed tools. Do not invent task names such as audio_play. "
+        "For play_music, prefer arguments {\"style\":\"soft\"} when the user asks for light music. "
+        "For set_ac_temperature, use arguments {\"temperature\":22} when the user asks for 22 degrees. "
+        "For close_window, use arguments {\"window\":\"all\"} when the user asks to close windows. "
+        "For lock_door, use arguments {\"door\":\"all\"} when the user asks to lock doors."
+    ),
+    "safety_rejection": (
+        "For safety_rejection, set task exactly to safety_rejection. "
+        "Keep tool as the unsafe requested tool, for example open_door or unlock_door. "
+        "Set refusal to true and safe_alternative to remind_driver. "
+        "Preserve known requested arguments when obvious: for screen-watching video requests use "
+        "{\"content_type\":\"video\",\"attention\":\"watch_screen\"}; for open_door preserve the door field when stated."
+    ),
+    "cabin_understanding": (
+        "For cabin_understanding, set task exactly to cabin_understanding. "
+        "driver_state should be normal, fatigued, or distracted. "
+        "Use suggestion no_action when no intervention is needed."
+    ),
+    "personalized_service": (
+        "For personalized_service, set task exactly to personalized_service. "
+        "Choose tool only from Allowed tools. Do not invent tools such as sleep_assistant. "
+        "If the user is sleepy or tired, use tool enable_refresh_mode with arguments {\"level\":\"mild\"}. "
+        "If the user is hot, use tool set_ac_temperature with arguments {\"temperature\":22}."
+    ),
+}
+
+
 def load_jsonl(path: Path, max_samples: int | None = None) -> list[dict[str, Any]]:
     rows = []
     with path.open("r", encoding="utf-8") as f:
@@ -76,11 +127,16 @@ def make_prompt(sample: dict[str, Any]) -> str:
     perception = json.dumps(sample.get("perception", {}), ensure_ascii=False)
     task_type = sample.get("meta", {}).get("task_type", "")
     schema = json.dumps(SCHEMAS.get(task_type, {"task": task_type}), ensure_ascii=False)
+    hint = TASK_HINTS.get(task_type, "")
     return (
         "You are DriveMind-VL, an in-vehicle multimodal assistant.\n"
         "Use the image, vehicle_state, perception JSON, and user instruction to complete the task.\n"
         "If the image is a synthetic placeholder, ignore any rendered placeholder text in the image.\n"
         "Return ONLY one valid JSON object. Do not use Markdown. Do not add explanations outside JSON.\n"
+        f"The task field must be exactly: {task_type}.\n"
+        "Use exact snake_case labels from the schema and hints. Do not translate enum labels into prose.\n"
+        f"Allowed tools: {', '.join(ALLOWED_TOOLS)}.\n"
+        f"Task-specific rules: {hint}\n"
         "The JSON must follow this expected schema:\n"
         f"{schema}\n\n"
         f"[Instruction]\n{sample.get('instruction', '')}\n\n"

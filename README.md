@@ -10,6 +10,7 @@ This repository is currently the local MVP for a 3080Ti machine. It does not tra
 scripts/                 local commands
 configs/                 local and server training templates
 data/                    raw, image, annotation, processed, and sample data
+data/external/           metadata placeholders for public benchmarks
 src/data/                seed data, validation, conversion
 src/perception/          lightweight perception JSON and stubs
 src/agent/               mock tools, parser, planner, safety guard
@@ -56,6 +57,30 @@ bash scripts/01_install_env.sh --mvp-only
 - `cabin_understanding`
 - `personalized_service`
 
+The synthetic seed is only an MVP smoke-test source. For stronger conclusions, the next dataset version should mix public cockpit/driving benchmarks with DriveMind-specific tool and safety cases. See `docs/benchmark_survey.md` and `docs/data_benchmark_plan.md`.
+
+## Public Benchmark Direction
+
+The recommended v2 data path is a hybrid benchmark:
+
+- `IntelliCockpitBench` for intelligent-cockpit VQA and non-decision cockpit interaction.
+- `NuScenes-QA`, `DriveLM`, and `DriveBench` for front-view driving VQA, risk reasoning, and robustness.
+- `Drive&Act` and `DMD` for driver monitoring and in-cabin behavior.
+- DriveMind synthetic/human-reviewed cases for vehicle control tools and safety refusal.
+
+External metadata can be converted with:
+
+```bash
+python src/data/convert_external_to_drivemind.py \
+  --source intelli_cockpit_bench \
+  --input data/external/intelli_cockpit_bench/sample.jsonl \
+  --image_root data/external/intelli_cockpit_bench/images \
+  --output data/processed/drivemind_external_intelli_eval.jsonl \
+  --limit 100
+```
+
+See `docs/external_eval_protocol.md` and `docs/intelli_cockpitbench_integration.md` for the next external-eval workflow.
+
 ## Data Conversion
 
 `src/data/convert_to_llamafactory.py` converts JSONL samples into a common multimodal SFT JSON format with `messages` and `images`.
@@ -65,6 +90,34 @@ bash scripts/01_install_env.sh --mvp-only
 `src/eval/base_infer_dryrun.py` emits deterministic dummy predictions without loading a model. `src/eval/run_all_eval.py` computes JSON validity, risk accuracy, tool accuracy, unsafe rejection rate, and average reward.
 
 `src/eval/base_infer_qwen25vl.py` is the optional phase-1 real-inference entrypoint. It defaults to dry-run unless `--model_name_or_path` points to a local Qwen2.5-VL model directory.
+
+For deeper reports, use grouped evaluation and error analysis:
+
+```bash
+bash scripts/15_eval_by_source.sh outputs/eval_results/base_predictions.jsonl
+```
+
+This reports metrics by `meta.benchmark_source`, by task, and writes categorized failure cases for experiment analysis.
+
+For the small IntelliCockpitBench external smoke test on the server:
+
+```bash
+bash scripts/17_run_intelli_qwen25vl_3b_eval.sh \
+  /root/autodl-tmp/models/Qwen2.5-VL-3B-Instruct \
+  third_party/IntelliCockpitBench
+```
+
+See `docs/intelli_cockpitbench_smoke_report.md` for the first 7-sample result.
+
+To check whether the model actually uses image input, run the visual ablation:
+
+```bash
+bash scripts/18_run_intelli_visual_ablation.sh \
+  /root/autodl-tmp/models/Qwen2.5-VL-3B-Instruct \
+  third_party/IntelliCockpitBench
+```
+
+See `docs/visual_grounding_ablation_report.md` for the first normal/text-only/wrong-image/blank-image comparison.
 
 ## Safety Guard
 
@@ -90,6 +143,6 @@ bash scripts/09_smoke_qwen25vl_3b.sh /mnt/models/Qwen2.5-VL-3B-Instruct
 
 - Replace synthetic perception with YOLO/GroundingDINO and Depth Anything V2.
 - Add real Qwen2.5-VL inference behind an explicit non-default flag.
-- Expand DriveMind-Instruct with real front-view/cabin data.
+- Build DriveMind-Instruct v2 from public benchmark subsets plus human-reviewed tool/safety data.
 - Run LoRA/SFT on a 48GB/5090 server.
 - Build DPO/ORPO/RFT-lite data from reward-scored outputs.

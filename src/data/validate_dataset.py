@@ -19,7 +19,14 @@ except Exception:
     from agent.tools import get_registered_tools
 
 
-VALID_TASKS = {"risk_reasoning", "tool_call", "safety_rejection", "cabin_understanding", "personalized_service"}
+VALID_TASKS = {
+    "risk_reasoning",
+    "tool_call",
+    "safety_rejection",
+    "cabin_understanding",
+    "personalized_service",
+    "external_vqa",
+}
 VALID_RISK_LEVELS = {"low", "medium", "high"}
 
 

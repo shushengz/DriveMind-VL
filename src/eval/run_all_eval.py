@@ -34,6 +34,7 @@ REQUIRED_BY_TASK = {
     "safety_rejection": {"task", "tool", "arguments", "refusal", "reason", "safe_alternative"},
     "cabin_understanding": {"task", "driver_state", "passenger_state", "reason", "suggestion"},
     "personalized_service": {"task", "tool", "arguments", "reason"},
+    "external_vqa": {"task", "answer", "reason"},
 }
 
 
@@ -64,6 +65,7 @@ def compute_metrics(rows: list[dict[str, Any]]) -> dict[str, float]:
         "unsafe_rejection_rate": round(unsafe_rejection_rate(rows), 4),
         "schema_completeness": round(sum(schema_scores) / len(schema_scores), 4) if schema_scores else 0.0,
         "reason_keyword_hit": round(sum(reason_scores) / len(reason_scores), 4) if reason_scores else 0.0,
+        "external_answer_f1": round(external_answer_f1(rows), 4),
         "avg_reward": round(sum(rewards) / len(rewards), 4) if rewards else 0.0,
     }
 
@@ -122,6 +124,39 @@ def tool_argument_accuracy(rows: list[dict[str, Any]]) -> float:
     return correct / len(tool_rows)
 
 
+def token_f1(prediction: str, reference: str) -> float:
+    pred_tokens = [token for token in prediction.lower().replace(".", " ").replace(",", " ").split() if token]
+    ref_tokens = [token for token in reference.lower().replace(".", " ").replace(",", " ").split() if token]
+    if not pred_tokens or not ref_tokens:
+        return 0.0
+    pred_counts: dict[str, int] = {}
+    ref_counts: dict[str, int] = {}
+    for token in pred_tokens:
+        pred_counts[token] = pred_counts.get(token, 0) + 1
+    for token in ref_tokens:
+        ref_counts[token] = ref_counts.get(token, 0) + 1
+    overlap = sum(min(pred_counts.get(token, 0), ref_counts.get(token, 0)) for token in pred_counts)
+    if overlap == 0:
+        return 0.0
+    precision = overlap / len(pred_tokens)
+    recall = overlap / len(ref_tokens)
+    return 2 * precision * recall / (precision + recall)
+
+
+def external_answer_f1(rows: list[dict[str, Any]]) -> float:
+    external_rows = [row for row in rows if row.get("meta", {}).get("task_type") == "external_vqa"]
+    if not external_rows:
+        return 0.0
+    scores = []
+    for row in external_rows:
+        parsed = parse_model_output(row.get("prediction"))
+        pred = parsed["data"] if parsed["ok"] else {}
+        pred_text = str(pred.get("answer") or pred.get("reason") or row.get("prediction") or "")
+        gold_text = str(row.get("gold", {}).get("answer") or row.get("gold", {}).get("reason") or "")
+        scores.append(token_f1(pred_text, gold_text))
+    return sum(scores) / len(scores) if scores else 0.0
+
+
 def collect_bad_cases(rows: list[dict[str, Any]], reward_threshold: float) -> list[dict[str, Any]]:
     bad_cases = []
     for row in rows:
@@ -132,6 +167,11 @@ def collect_bad_cases(rows: list[dict[str, Any]], reward_threshold: float) -> li
             reasons.append(parsed.get("parse_error") or "invalid_json")
         if reward["total"] < reward_threshold:
             reasons.append("low_reward")
+        if row.get("meta", {}).get("task_type") == "external_vqa" and parsed["ok"]:
+            pred_text = str(parsed["data"].get("answer") or parsed["data"].get("reason") or "")
+            gold_text = str(row.get("gold", {}).get("answer") or row.get("gold", {}).get("reason") or "")
+            if token_f1(pred_text, gold_text) < 0.2:
+                reasons.append("external_answer_low_overlap")
         if schema_completeness(row) < 1.0:
             reasons.append("schema_incomplete")
         pred_task = parsed["data"].get("task") if parsed["ok"] else None

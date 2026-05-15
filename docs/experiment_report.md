@@ -75,3 +75,20 @@ The first LoRA/SFT smoke experiment supports a cautious positive conclusion: wit
 
 The next experiment should focus on data quality instead of model scale: expand hard cases for tool arguments and safety arguments, then rerun a slightly larger 3B LoRA experiment before trying 7B QLoRA.
 
+## Scope Limitation
+
+This experiment is a synthetic-data smoke test. It validates the engineering loop, JSON schema following, safety-guard integration, reward calculation, and minimal LoRA feasibility. It does not prove reliable real-world cockpit understanding because the current seed data is template-generated and the MVP images are placeholders.
+
+The next report should use DriveMind-Instruct v2 with public benchmark subsets. The priority sources are IntelliCockpitBench for intelligent-cockpit VQA, NuScenes-QA/DriveLM/DriveBench for front-view driving VQA and robustness, and Drive&Act/DMD for in-cabin driver monitoring.
+
+## External Smoke Test
+
+The first IntelliCockpitBench 7-sample smoke test is recorded in `docs/intelli_cockpitbench_smoke_report.md`. It shows a clear gap between schema following and visual grounding: Qwen2.5-VL-3B reaches `json_validity=1.0000` and `schema_completeness=1.0000`, but only `external_answer_f1=0.2070`, with 4 of 7 cases flagged by error analysis for low answer overlap.
+
+This supports the next project direction: do not rely on synthetic seed metrics as the main claim. Build a larger external VQA eval subset first, then decide whether LoRA v2 improves real visual grounding.
+
+## Visual Grounding Ablation
+
+The first normal/text-only/wrong-image/blank-image comparison is recorded in `docs/visual_grounding_ablation_report.md`. On the 7-sample IntelliCockpitBench smoke set, normal-image `external_answer_f1=0.2070`, text-only drops to `0.0801`, wrong-image is `0.1135`, and blank-image is `0.1766`.
+
+This suggests Qwen2.5-VL-3B uses some visual information, but the evidence is weak on such a small sample. Future claims about real visual grounding must use a larger external subset and keep these ablation controls.

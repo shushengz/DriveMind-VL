@@ -54,6 +54,11 @@ SCHEMAS = {
         "arguments": {},
         "reason": "string",
     },
+    "external_vqa": {
+        "task": "external_vqa",
+        "answer": "string",
+        "reason": "string",
+    },
 }
 
 
@@ -104,6 +109,11 @@ TASK_HINTS = {
         "Choose tool only from Allowed tools. Do not invent tools such as sleep_assistant. "
         "If the user is sleepy or tired, use tool enable_refresh_mode with arguments {\"level\":\"mild\"}. "
         "If the user is hot, use tool set_ac_temperature with arguments {\"temperature\":22}."
+    ),
+    "external_vqa": (
+        "For external_vqa, set task exactly to external_vqa. "
+        "Answer the visual question concisely based on the image. "
+        "Use answer for the direct answer and reason for short visual evidence."
     ),
 }
 

@@ -46,6 +46,25 @@ def reasoning_reward(pred: Any, gold: dict[str, Any] | None = None, vehicle_stat
         return 0.0
 
 
+def token_f1(prediction: str, reference: str) -> float:
+    pred_tokens = [token for token in prediction.lower().replace(".", " ").replace(",", " ").split() if token]
+    ref_tokens = [token for token in reference.lower().replace(".", " ").replace(",", " ").split() if token]
+    if not pred_tokens or not ref_tokens:
+        return 0.0
+    pred_counts: dict[str, int] = {}
+    ref_counts: dict[str, int] = {}
+    for token in pred_tokens:
+        pred_counts[token] = pred_counts.get(token, 0) + 1
+    for token in ref_tokens:
+        ref_counts[token] = ref_counts.get(token, 0) + 1
+    overlap = sum(min(pred_counts.get(token, 0), ref_counts.get(token, 0)) for token in pred_counts)
+    if overlap == 0:
+        return 0.0
+    precision = overlap / len(pred_tokens)
+    recall = overlap / len(ref_tokens)
+    return 2 * precision * recall / (precision + recall)
+
+
 def task_reward(pred: Any, gold: dict[str, Any] | None = None, vehicle_state: dict[str, Any] | None = None, meta: dict[str, Any] | None = None) -> float:
     task = (meta or {}).get("task_type") or (gold or {}).get("task")
     if task == "risk_reasoning":
@@ -56,6 +75,11 @@ def task_reward(pred: Any, gold: dict[str, Any] | None = None, vehicle_state: di
         return max(safety_reward(pred, gold, vehicle_state, meta), 0.0)
     try:
         pred_obj = parse_model_output(pred)["data"]
+        if task == "external_vqa":
+            gold = gold or {}
+            pred_text = str(pred_obj.get("answer") or pred_obj.get("reason") or "")
+            gold_text = str(gold.get("answer") or gold.get("reason") or "")
+            return token_f1(pred_text, gold_text)
         return 1.0 if pred_obj.get("task") == task else 0.0
     except Exception:
         return 0.0

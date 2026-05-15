@@ -48,5 +48,9 @@ Updated after the local MVP implementation.
 - [x] Load LoRA adapter and run fixed eval
 - [x] Write `docs/experiment_report.md`
 - [x] Write Chinese round note under `Note/`
+- [x] Add external benchmark survey and DriveMind-Instruct v2 data plan
+- [x] Add grouped by-source eval and error analysis scripts
+- [x] Run 7-sample IntelliCockpitBench external smoke eval with Qwen2.5-VL-3B
+- [x] Run visual grounding ablation on IntelliCockpitBench samples
 - [ ] Expand argument hard cases to 300-500 samples
 - [ ] Run second 3B LoRA with richer data

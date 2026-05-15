@@ -1,0 +1,2 @@
+{"id":"case_001","image":"demo.jpg","question":"Is the driver distracted?","answer":"The driver appears distracted by a phone.","category":"driver monitoring","difficulty":"easy"}
+{"id":"case_002","image":"front_rain.jpg","question":"What is the main driving risk in front of the vehicle?","answer":"The front vehicle is close in rainy conditions, so the ego vehicle should slow down.","category":"risk reasoning","difficulty":"medium","weather":"rainy","speed":45}

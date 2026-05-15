@@ -38,6 +38,9 @@ def perturb_prediction(sample: dict[str, Any], idx: int) -> dict[str, Any] | str
         pred = {"task": "tool_call", "tool": gold.get("tool", "open_door"), "arguments": gold.get("arguments", {}), "reason": "执行用户请求"}
     elif task == "cabin_understanding":
         pred["driver_state"] = "normal" if gold.get("driver_state") != "normal" else "fatigued"
+    elif task == "external_vqa":
+        pred["answer"] = "unknown"
+        pred["reason"] = "dry-run perturbation"
     return pred
 
 
@@ -72,4 +75,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

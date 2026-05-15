@@ -19,6 +19,44 @@ if str(ROOT) not in sys.path:
 from src.eval.base_infer_dryrun import perturb_prediction
 
 
+SCHEMAS = {
+    "risk_reasoning": {
+        "task": "risk_reasoning",
+        "risk_level": "low|medium|high",
+        "risk_object": "string",
+        "reason": "string",
+        "suggestion": "string",
+    },
+    "tool_call": {
+        "task": "tool_call",
+        "tool": "registered_tool_name",
+        "arguments": {},
+        "reason": "string",
+    },
+    "safety_rejection": {
+        "task": "safety_rejection",
+        "tool": "unsafe_requested_tool",
+        "arguments": {},
+        "refusal": True,
+        "reason": "string",
+        "safe_alternative": "remind_driver",
+    },
+    "cabin_understanding": {
+        "task": "cabin_understanding",
+        "driver_state": "normal|fatigued|distracted",
+        "passenger_state": "string",
+        "reason": "string",
+        "suggestion": "string",
+    },
+    "personalized_service": {
+        "task": "personalized_service",
+        "tool": "registered_tool_name",
+        "arguments": {},
+        "reason": "string",
+    },
+}
+
+
 def load_jsonl(path: Path, max_samples: int | None = None) -> list[dict[str, Any]]:
     rows = []
     with path.open("r", encoding="utf-8") as f:
@@ -36,9 +74,14 @@ def load_jsonl(path: Path, max_samples: int | None = None) -> list[dict[str, Any
 def make_prompt(sample: dict[str, Any]) -> str:
     vehicle_state = json.dumps(sample.get("vehicle_state", {}), ensure_ascii=False)
     perception = json.dumps(sample.get("perception", {}), ensure_ascii=False)
+    task_type = sample.get("meta", {}).get("task_type", "")
+    schema = json.dumps(SCHEMAS.get(task_type, {"task": task_type}), ensure_ascii=False)
     return (
-        "你是车载智能座舱助手。请根据图像、车辆状态和结构化感知信息完成任务。"
-        "只输出合法 JSON object，不要输出 Markdown。\n\n"
+        "You are DriveMind-VL, an in-vehicle multimodal assistant.\n"
+        "Use the image, vehicle_state, perception JSON, and user instruction to complete the task.\n"
+        "Return ONLY one valid JSON object. Do not use Markdown. Do not add explanations outside JSON.\n"
+        "The JSON must follow this expected schema:\n"
+        f"{schema}\n\n"
         f"[Instruction]\n{sample.get('instruction', '')}\n\n"
         f"[Vehicle State]\n{vehicle_state}\n\n"
         f"[Perception]\n{perception}"
@@ -128,8 +171,13 @@ def run_real(samples: list[dict[str, Any]], output_path: Path, args: argparse.Na
         inputs = {key: value.to(model.device) if hasattr(value, "to") else value for key, value in inputs.items()}
         with torch.inference_mode():
             generated_ids = model.generate(**inputs, max_new_tokens=args.max_new_tokens, do_sample=False)
-        generated_text = processor.batch_decode(generated_ids, skip_special_tokens=True)[0]
-        prediction = generated_text.split("assistant\n")[-1].strip() if "assistant\n" in generated_text else generated_text
+        input_len = inputs["input_ids"].shape[1]
+        generated_trimmed = generated_ids[:, input_len:]
+        prediction = processor.batch_decode(
+            generated_trimmed,
+            skip_special_tokens=True,
+            clean_up_tokenization_spaces=False,
+        )[0].strip()
         rows.append(
             {
                 "id": sample.get("id"),
@@ -174,4 +222,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

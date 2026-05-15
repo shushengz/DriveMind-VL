@@ -37,5 +37,16 @@ Updated after the local MVP implementation.
 - [x] Add local/server conda environment templates
 - [x] Add model file checker
 - [x] Add 3B smoke-test script
-- [ ] Run 5 real samples after model files are prepared
-- [ ] Save real-model bad cases
+- [x] Run 5 and 20 real samples after model files are prepared
+- [x] Save real-model bad cases
+
+## Phase 2: 3B LoRA/SFT Smoke Experiment
+
+- [x] Create deterministic 80/20 train/eval split
+- [x] Run fixed Base 3B eval on 20 samples
+- [x] Run minimal 3B LoRA/SFT smoke training on 80 samples
+- [x] Load LoRA adapter and run fixed eval
+- [x] Write `docs/experiment_report.md`
+- [x] Write Chinese round note under `Note/`
+- [ ] Expand argument hard cases to 300-500 samples
+- [ ] Run second 3B LoRA with richer data

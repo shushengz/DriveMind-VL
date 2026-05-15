@@ -171,6 +171,7 @@ def run_dry(samples: list[dict[str, Any]], output_path: Path) -> int:
 def load_real_model(args: argparse.Namespace):
     try:
         import torch
+        from peft import PeftModel
         from transformers import AutoProcessor, BitsAndBytesConfig, Qwen2_5_VLForConditionalGeneration
     except Exception as exc:
         raise RuntimeError(
@@ -196,12 +197,15 @@ def load_real_model(args: argparse.Namespace):
     if quantization_config is not None:
         model_kwargs["quantization_config"] = quantization_config
 
-    processor = AutoProcessor.from_pretrained(args.model_name_or_path, trust_remote_code=True)
+    processor_path = args.adapter_path if args.adapter_path else args.model_name_or_path
+    processor = AutoProcessor.from_pretrained(processor_path, trust_remote_code=True)
     model = Qwen2_5_VLForConditionalGeneration.from_pretrained(
         args.model_name_or_path,
         trust_remote_code=True,
         **model_kwargs,
     )
+    if args.adapter_path:
+        model = PeftModel.from_pretrained(model, args.adapter_path)
     return model, processor
 
 
@@ -268,6 +272,7 @@ def main() -> None:
     parser.add_argument("--bf16", action="store_true")
     parser.add_argument("--device_map", default="auto")
     parser.add_argument("--text_only", action="store_true", help="Skip image input for debugging output formatting.")
+    parser.add_argument("--adapter_path", default="", help="Optional LoRA adapter directory.")
     args = parser.parse_args()
 
     samples = load_jsonl(Path(args.input), args.max_samples)

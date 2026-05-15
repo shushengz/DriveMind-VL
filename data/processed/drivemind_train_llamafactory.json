@@ -1,0 +1,1202 @@
+[
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "你是车载智能座舱助手。请根据图像、车辆状态和结构化感知信息完成任务。\n\n[Instruction]\n请理解当前舱内状态，并输出JSON。\n\n[Vehicle State]\n{\"speed\": 42, \"weather\": \"clear\", \"distance_to_front_car\": 25, \"yaw_rate\": 0.01, \"gear\": \"D\", \"time\": \"night\"}\n\n[Perception]\n{\"objects\": [{\"class\": \"driver_face\", \"bbox\": [250, 90, 390, 260], \"position\": \"front_left\", \"relative_depth\": 1.0, \"risk_score\": 0.65}], \"scene\": \"cabin\", \"risk_hint\": \"driver_fatigue\"}"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"task\":\"cabin_understanding\",\"driver_state\":\"fatigued\",\"passenger_state\":\"normal\",\"reason\":\"驾驶员眼部状态显示可能疲劳\",\"suggestion\":\"remind_driver\"}"
+      }
+    ],
+    "images": [
+      "data/images/cabin_scene_0.jpg"
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "你是车载智能座舱助手。请根据图像、车辆状态和结构化感知信息完成任务。\n\n[Instruction]\n现在给我播放一段需要盯着中控屏看的视频。\n\n[Vehicle State]\n{\"speed\": 55, \"weather\": \"clear\", \"distance_to_front_car\": 28, \"yaw_rate\": 0.01, \"gear\": \"D\", \"time\": \"night\"}\n\n[Perception]\n{\"objects\": [], \"scene\": \"urban_road\", \"risk_hint\": \"moving_vehicle\"}"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"task\":\"safety_rejection\",\"tool\":\"play_music\",\"arguments\":{\"content_type\":\"video\",\"attention\":\"watch_screen\"},\"refusal\":true,\"reason\":\"高速行驶时要求驾驶员观看屏幕会分散注意力\",\"safe_alternative\":\"remind_driver\"}"
+      }
+    ],
+    "images": [
+      "data/images/road_scene_0.jpg"
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "你是车载智能座舱助手。请根据图像、车辆状态和结构化感知信息完成任务。\n\n[Instruction]\n请理解当前舱内状态，并输出JSON。\n\n[Vehicle State]\n{\"speed\": 42, \"weather\": \"clear\", \"distance_to_front_car\": 25, \"yaw_rate\": 0.01, \"gear\": \"D\", \"time\": \"night\"}\n\n[Perception]\n{\"objects\": [{\"class\": \"driver_face\", \"bbox\": [250, 90, 390, 260], \"position\": \"front_left\", \"relative_depth\": 1.0, \"risk_score\": 0.65}], \"scene\": \"cabin\", \"risk_hint\": \"driver_fatigue\"}"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"task\":\"cabin_understanding\",\"driver_state\":\"fatigued\",\"passenger_state\":\"normal\",\"reason\":\"驾驶员眼部状态显示可能疲劳\",\"suggestion\":\"remind_driver\"}"
+      }
+    ],
+    "images": [
+      "data/images/cabin_scene_0.jpg"
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "你是车载智能座舱助手。请根据图像、车辆状态和结构化感知信息完成任务。\n\n[Instruction]\n请判断当前驾驶风险等级，并输出JSON。\n\n[Vehicle State]\n{\"speed\": 45, \"weather\": \"rainy\", \"distance_to_front_car\": 8.5, \"yaw_rate\": 0.03, \"gear\": \"D\", \"time\": \"night\"}\n\n[Perception]\n{\"objects\": [{\"class\": \"car\", \"bbox\": [320, 210, 480, 360], \"position\": \"front\", \"relative_depth\": 8.5, \"risk_score\": 0.83}], \"scene\": \"urban_road\", \"risk_hint\": \"front_car_close\"}"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"task\":\"risk_reasoning\",\"risk_level\":\"high\",\"risk_object\":\"front_car\",\"reason\":\"雨天且前车距离较近，当前车速较高，制动风险增加\",\"suggestion\":\"slow_down\"}"
+      }
+    ],
+    "images": [
+      "data/images/road_scene_1.jpg"
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "你是车载智能座舱助手。请根据图像、车辆状态和结构化感知信息完成任务。\n\n[Instruction]\n请理解当前舱内状态，并输出JSON。\n\n[Vehicle State]\n{\"speed\": 42, \"weather\": \"clear\", \"distance_to_front_car\": 25, \"yaw_rate\": 0.01, \"gear\": \"D\", \"time\": \"night\"}\n\n[Perception]\n{\"objects\": [{\"class\": \"driver_face\", \"bbox\": [250, 90, 390, 260], \"position\": \"front_left\", \"relative_depth\": 1.0, \"risk_score\": 0.2}], \"scene\": \"cabin\", \"risk_hint\": \"normal_cabin\"}"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"task\":\"cabin_understanding\",\"driver_state\":\"normal\",\"passenger_state\":\"normal\",\"reason\":\"驾驶员姿态和注意力正常\",\"suggestion\":\"no_action\"}"
+      }
+    ],
+    "images": [
+      "data/images/cabin_scene_1.jpg"
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "你是车载智能座舱助手。请根据图像、车辆状态和结构化感知信息完成任务。\n\n[Instruction]\n请判断当前驾驶风险等级，并输出JSON。\n\n[Vehicle State]\n{\"speed\": 45, \"weather\": \"rainy\", \"distance_to_front_car\": 8.5, \"yaw_rate\": 0.03, \"gear\": \"D\", \"time\": \"night\"}\n\n[Perception]\n{\"objects\": [{\"class\": \"car\", \"bbox\": [320, 210, 480, 360], \"position\": \"front\", \"relative_depth\": 8.5, \"risk_score\": 0.83}], \"scene\": \"urban_road\", \"risk_hint\": \"front_car_close\"}"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"task\":\"risk_reasoning\",\"risk_level\":\"high\",\"risk_object\":\"front_car\",\"reason\":\"雨天且前车距离较近，当前车速较高，制动风险增加\",\"suggestion\":\"slow_down\"}"
+      }
+    ],
+    "images": [
+      "data/images/road_scene_0.jpg"
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "你是车载智能座舱助手。请根据图像、车辆状态和结构化感知信息完成任务。\n\n[Instruction]\n现在给我播放一段需要盯着中控屏看的视频。\n\n[Vehicle State]\n{\"speed\": 55, \"weather\": \"clear\", \"distance_to_front_car\": 28, \"yaw_rate\": 0.01, \"gear\": \"D\", \"time\": \"night\"}\n\n[Perception]\n{\"objects\": [], \"scene\": \"urban_road\", \"risk_hint\": \"moving_vehicle\"}"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"task\":\"safety_rejection\",\"tool\":\"play_music\",\"arguments\":{\"content_type\":\"video\",\"attention\":\"watch_screen\"},\"refusal\":true,\"reason\":\"高速行驶时要求驾驶员观看屏幕会分散注意力\",\"safe_alternative\":\"remind_driver\"}"
+      }
+    ],
+    "images": [
+      "data/images/road_scene_2.jpg"
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "你是车载智能座舱助手。请根据图像、车辆状态和结构化感知信息完成任务。\n\n[Instruction]\n请判断当前驾驶风险等级，并输出JSON。\n\n[Vehicle State]\n{\"speed\": 45, \"weather\": \"rainy\", \"distance_to_front_car\": 8.5, \"yaw_rate\": 0.03, \"gear\": \"D\", \"time\": \"night\"}\n\n[Perception]\n{\"objects\": [{\"class\": \"car\", \"bbox\": [320, 210, 480, 360], \"position\": \"front\", \"relative_depth\": 8.5, \"risk_score\": 0.83}], \"scene\": \"urban_road\", \"risk_hint\": \"front_car_close\"}"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"task\":\"risk_reasoning\",\"risk_level\":\"high\",\"risk_object\":\"front_car\",\"reason\":\"雨天且前车距离较近，当前车速较高，制动风险增加\",\"suggestion\":\"slow_down\"}"
+      }
+    ],
+    "images": [
+      "data/images/road_scene_1.jpg"
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "你是车载智能座舱助手。请根据图像、车辆状态和结构化感知信息完成任务。\n\n[Instruction]\n帮我解锁车门。\n\n[Vehicle State]\n{\"speed\": 12, \"weather\": \"clear\", \"distance_to_front_car\": 20, \"yaw_rate\": 0.02, \"gear\": \"D\", \"time\": \"day\"}\n\n[Perception]\n{\"objects\": [], \"scene\": \"urban_road\", \"risk_hint\": \"moving_vehicle\"}"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"task\":\"safety_rejection\",\"tool\":\"unlock_door\",\"arguments\":{\"door\":\"all\"},\"refusal\":true,\"reason\":\"车辆行驶中解锁车门存在误开门风险\",\"safe_alternative\":\"remind_driver\"}"
+      }
+    ],
+    "images": [
+      "data/images/road_scene_1.jpg"
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "你是车载智能座舱助手。请根据图像、车辆状态和结构化感知信息完成任务。\n\n[Instruction]\n我有点困，帮我处理一下。\n\n[Vehicle State]\n{\"speed\": 50, \"weather\": \"clear\", \"distance_to_front_car\": 35, \"yaw_rate\": 0.01, \"gear\": \"D\", \"time\": \"night\"}\n\n[Perception]\n{\"objects\": [], \"scene\": \"cabin\", \"risk_hint\": \"driver_fatigue\"}"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"task\":\"personalized_service\",\"tool\":\"enable_refresh_mode\",\"arguments\":{\"level\":\"mild\"},\"reason\":\"用户表达疲劳，应启用轻度提神并提醒专注驾驶\"}"
+      }
+    ],
+    "images": [
+      "data/images/cabin_scene_0.jpg"
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "你是车载智能座舱助手。请根据图像、车辆状态和结构化感知信息完成任务。\n\n[Instruction]\n锁上车门。\n\n[Vehicle State]\n{\"speed\": 0, \"weather\": \"clear\", \"distance_to_front_car\": 30, \"yaw_rate\": 0.0, \"gear\": \"P\", \"time\": \"day\"}\n\n[Perception]\n{\"objects\": [], \"scene\": \"parking_lot\", \"risk_hint\": \"none\"}"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"task\":\"tool_call\",\"tool\":\"lock_door\",\"arguments\":{\"door\":\"all\"},\"reason\":\"用户请求属于安全座舱控制\"}"
+      }
+    ],
+    "images": [
+      "data/images/road_scene_2.jpg"
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "你是车载智能座舱助手。请根据图像、车辆状态和结构化感知信息完成任务。\n\n[Instruction]\n我有点困，帮我处理一下。\n\n[Vehicle State]\n{\"speed\": 50, \"weather\": \"clear\", \"distance_to_front_car\": 35, \"yaw_rate\": 0.01, \"gear\": \"D\", \"time\": \"night\"}\n\n[Perception]\n{\"objects\": [], \"scene\": \"cabin\", \"risk_hint\": \"driver_fatigue\"}"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"task\":\"personalized_service\",\"tool\":\"enable_refresh_mode\",\"arguments\":{\"level\":\"mild\"},\"reason\":\"用户表达疲劳，应启用轻度提神并提醒专注驾驶\"}"
+      }
+    ],
+    "images": [
+      "data/images/cabin_scene_0.jpg"
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "你是车载智能座舱助手。请根据图像、车辆状态和结构化感知信息完成任务。\n\n[Instruction]\n我觉得有点热，帮我舒服一点。\n\n[Vehicle State]\n{\"speed\": 0, \"weather\": \"clear\", \"distance_to_front_car\": 35, \"yaw_rate\": 0.01, \"gear\": \"P\", \"time\": \"day\"}\n\n[Perception]\n{\"objects\": [], \"scene\": \"cabin\", \"risk_hint\": \"comfort_request\"}"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"task\":\"personalized_service\",\"tool\":\"set_ac_temperature\",\"arguments\":{\"temperature\":22},\"reason\":\"用户表达温度不适，停车状态可调节空调\"}"
+      }
+    ],
+    "images": [
+      "data/images/cabin_scene_1.jpg"
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "你是车载智能座舱助手。请根据图像、车辆状态和结构化感知信息完成任务。\n\n[Instruction]\n请理解当前舱内状态，并输出JSON。\n\n[Vehicle State]\n{\"speed\": 42, \"weather\": \"clear\", \"distance_to_front_car\": 25, \"yaw_rate\": 0.01, \"gear\": \"D\", \"time\": \"night\"}\n\n[Perception]\n{\"objects\": [{\"class\": \"driver_face\", \"bbox\": [250, 90, 390, 260], \"position\": \"front_left\", \"relative_depth\": 1.0, \"risk_score\": 0.65}], \"scene\": \"cabin\", \"risk_hint\": \"driver_fatigue\"}"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"task\":\"cabin_understanding\",\"driver_state\":\"fatigued\",\"passenger_state\":\"normal\",\"reason\":\"驾驶员眼部状态显示可能疲劳\",\"suggestion\":\"remind_driver\"}"
+      }
+    ],
+    "images": [
+      "data/images/cabin_scene_0.jpg"
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "你是车载智能座舱助手。请根据图像、车辆状态和结构化感知信息完成任务。\n\n[Instruction]\n请理解当前舱内状态，并输出JSON。\n\n[Vehicle State]\n{\"speed\": 42, \"weather\": \"clear\", \"distance_to_front_car\": 25, \"yaw_rate\": 0.01, \"gear\": \"D\", \"time\": \"night\"}\n\n[Perception]\n{\"objects\": [{\"class\": \"driver_face\", \"bbox\": [250, 90, 390, 260], \"position\": \"front_left\", \"relative_depth\": 1.0, \"risk_score\": 0.65}], \"scene\": \"cabin\", \"risk_hint\": \"driver_fatigue\"}"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"task\":\"cabin_understanding\",\"driver_state\":\"fatigued\",\"passenger_state\":\"normal\",\"reason\":\"驾驶员眼部状态显示可能疲劳\",\"suggestion\":\"remind_driver\"}"
+      }
+    ],
+    "images": [
+      "data/images/cabin_scene_0.jpg"
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "你是车载智能座舱助手。请根据图像、车辆状态和结构化感知信息完成任务。\n\n[Instruction]\n请理解当前舱内状态，并输出JSON。\n\n[Vehicle State]\n{\"speed\": 42, \"weather\": \"clear\", \"distance_to_front_car\": 25, \"yaw_rate\": 0.01, \"gear\": \"D\", \"time\": \"night\"}\n\n[Perception]\n{\"objects\": [{\"class\": \"driver_face\", \"bbox\": [250, 90, 390, 260], \"position\": \"front_left\", \"relative_depth\": 1.0, \"risk_score\": 0.2}], \"scene\": \"cabin\", \"risk_hint\": \"normal_cabin\"}"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"task\":\"cabin_understanding\",\"driver_state\":\"normal\",\"passenger_state\":\"normal\",\"reason\":\"驾驶员姿态和注意力正常\",\"suggestion\":\"no_action\"}"
+      }
+    ],
+    "images": [
+      "data/images/cabin_scene_1.jpg"
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "你是车载智能座舱助手。请根据图像、车辆状态和结构化感知信息完成任务。\n\n[Instruction]\n请判断当前驾驶风险等级，并输出JSON。\n\n[Vehicle State]\n{\"speed\": 45, \"weather\": \"rainy\", \"distance_to_front_car\": 8.5, \"yaw_rate\": 0.03, \"gear\": \"D\", \"time\": \"night\"}\n\n[Perception]\n{\"objects\": [{\"class\": \"car\", \"bbox\": [320, 210, 480, 360], \"position\": \"front\", \"relative_depth\": 8.5, \"risk_score\": 0.83}], \"scene\": \"urban_road\", \"risk_hint\": \"front_car_close\"}"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"task\":\"risk_reasoning\",\"risk_level\":\"high\",\"risk_object\":\"front_car\",\"reason\":\"雨天且前车距离较近，当前车速较高，制动风险增加\",\"suggestion\":\"slow_down\"}"
+      }
+    ],
+    "images": [
+      "data/images/road_scene_0.jpg"
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "你是车载智能座舱助手。请根据图像、车辆状态和结构化感知信息完成任务。\n\n[Instruction]\n请理解当前舱内状态，并输出JSON。\n\n[Vehicle State]\n{\"speed\": 42, \"weather\": \"clear\", \"distance_to_front_car\": 25, \"yaw_rate\": 0.01, \"gear\": \"D\", \"time\": \"night\"}\n\n[Perception]\n{\"objects\": [{\"class\": \"driver_face\", \"bbox\": [250, 90, 390, 260], \"position\": \"front_left\", \"relative_depth\": 1.0, \"risk_score\": 0.65}], \"scene\": \"cabin\", \"risk_hint\": \"driver_fatigue\"}"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"task\":\"cabin_understanding\",\"driver_state\":\"fatigued\",\"passenger_state\":\"normal\",\"reason\":\"驾驶员眼部状态显示可能疲劳\",\"suggestion\":\"remind_driver\"}"
+      }
+    ],
+    "images": [
+      "data/images/cabin_scene_0.jpg"
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "你是车载智能座舱助手。请根据图像、车辆状态和结构化感知信息完成任务。\n\n[Instruction]\n我有点困，帮我处理一下。\n\n[Vehicle State]\n{\"speed\": 50, \"weather\": \"clear\", \"distance_to_front_car\": 35, \"yaw_rate\": 0.01, \"gear\": \"D\", \"time\": \"night\"}\n\n[Perception]\n{\"objects\": [], \"scene\": \"cabin\", \"risk_hint\": \"driver_fatigue\"}"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"task\":\"personalized_service\",\"tool\":\"enable_refresh_mode\",\"arguments\":{\"level\":\"mild\"},\"reason\":\"用户表达疲劳，应启用轻度提神并提醒专注驾驶\"}"
+      }
+    ],
+    "images": [
+      "data/images/cabin_scene_0.jpg"
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "你是车载智能座舱助手。请根据图像、车辆状态和结构化感知信息完成任务。\n\n[Instruction]\n帮我关上车窗。\n\n[Vehicle State]\n{\"speed\": 0, \"weather\": \"clear\", \"distance_to_front_car\": 30, \"yaw_rate\": 0.0, \"gear\": \"P\", \"time\": \"day\"}\n\n[Perception]\n{\"objects\": [], \"scene\": \"parking_lot\", \"risk_hint\": \"none\"}"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"task\":\"tool_call\",\"tool\":\"close_window\",\"arguments\":{\"window\":\"all\"},\"reason\":\"用户请求属于安全座舱控制\"}"
+      }
+    ],
+    "images": [
+      "data/images/road_scene_0.jpg"
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "你是车载智能座舱助手。请根据图像、车辆状态和结构化感知信息完成任务。\n\n[Instruction]\n我觉得有点热，帮我舒服一点。\n\n[Vehicle State]\n{\"speed\": 0, \"weather\": \"clear\", \"distance_to_front_car\": 35, \"yaw_rate\": 0.01, \"gear\": \"P\", \"time\": \"day\"}\n\n[Perception]\n{\"objects\": [], \"scene\": \"cabin\", \"risk_hint\": \"comfort_request\"}"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"task\":\"personalized_service\",\"tool\":\"set_ac_temperature\",\"arguments\":{\"temperature\":22},\"reason\":\"用户表达温度不适，停车状态可调节空调\"}"
+      }
+    ],
+    "images": [
+      "data/images/cabin_scene_1.jpg"
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "你是车载智能座舱助手。请根据图像、车辆状态和结构化感知信息完成任务。\n\n[Instruction]\n帮我解锁车门。\n\n[Vehicle State]\n{\"speed\": 12, \"weather\": \"clear\", \"distance_to_front_car\": 20, \"yaw_rate\": 0.02, \"gear\": \"D\", \"time\": \"day\"}\n\n[Perception]\n{\"objects\": [], \"scene\": \"urban_road\", \"risk_hint\": \"moving_vehicle\"}"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"task\":\"safety_rejection\",\"tool\":\"unlock_door\",\"arguments\":{\"door\":\"all\"},\"refusal\":true,\"reason\":\"车辆行驶中解锁车门存在误开门风险\",\"safe_alternative\":\"remind_driver\"}"
+      }
+    ],
+    "images": [
+      "data/images/road_scene_2.jpg"
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "你是车载智能座舱助手。请根据图像、车辆状态和结构化感知信息完成任务。\n\n[Instruction]\n我觉得有点热，帮我舒服一点。\n\n[Vehicle State]\n{\"speed\": 0, \"weather\": \"clear\", \"distance_to_front_car\": 35, \"yaw_rate\": 0.01, \"gear\": \"P\", \"time\": \"day\"}\n\n[Perception]\n{\"objects\": [], \"scene\": \"cabin\", \"risk_hint\": \"comfort_request\"}"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"task\":\"personalized_service\",\"tool\":\"set_ac_temperature\",\"arguments\":{\"temperature\":22},\"reason\":\"用户表达温度不适，停车状态可调节空调\"}"
+      }
+    ],
+    "images": [
+      "data/images/cabin_scene_1.jpg"
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "你是车载智能座舱助手。请根据图像、车辆状态和结构化感知信息完成任务。\n\n[Instruction]\n帮我解锁车门。\n\n[Vehicle State]\n{\"speed\": 12, \"weather\": \"clear\", \"distance_to_front_car\": 20, \"yaw_rate\": 0.02, \"gear\": \"D\", \"time\": \"day\"}\n\n[Perception]\n{\"objects\": [], \"scene\": \"urban_road\", \"risk_hint\": \"moving_vehicle\"}"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"task\":\"safety_rejection\",\"tool\":\"unlock_door\",\"arguments\":{\"door\":\"all\"},\"refusal\":true,\"reason\":\"车辆行驶中解锁车门存在误开门风险\",\"safe_alternative\":\"remind_driver\"}"
+      }
+    ],
+    "images": [
+      "data/images/road_scene_1.jpg"
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "你是车载智能座舱助手。请根据图像、车辆状态和结构化感知信息完成任务。\n\n[Instruction]\n请判断当前驾驶风险等级，并输出JSON。\n\n[Vehicle State]\n{\"speed\": 45, \"weather\": \"rainy\", \"distance_to_front_car\": 8.5, \"yaw_rate\": 0.03, \"gear\": \"D\", \"time\": \"night\"}\n\n[Perception]\n{\"objects\": [{\"class\": \"car\", \"bbox\": [320, 210, 480, 360], \"position\": \"front\", \"relative_depth\": 8.5, \"risk_score\": 0.83}], \"scene\": \"urban_road\", \"risk_hint\": \"front_car_close\"}"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"task\":\"risk_reasoning\",\"risk_level\":\"high\",\"risk_object\":\"front_car\",\"reason\":\"雨天且前车距离较近，当前车速较高，制动风险增加\",\"suggestion\":\"slow_down\"}"
+      }
+    ],
+    "images": [
+      "data/images/road_scene_0.jpg"
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "你是车载智能座舱助手。请根据图像、车辆状态和结构化感知信息完成任务。\n\n[Instruction]\n请判断当前驾驶风险等级，并输出JSON。\n\n[Vehicle State]\n{\"speed\": 45, \"weather\": \"rainy\", \"distance_to_front_car\": 8.5, \"yaw_rate\": 0.03, \"gear\": \"D\", \"time\": \"night\"}\n\n[Perception]\n{\"objects\": [{\"class\": \"car\", \"bbox\": [320, 210, 480, 360], \"position\": \"front\", \"relative_depth\": 8.5, \"risk_score\": 0.83}], \"scene\": \"urban_road\", \"risk_hint\": \"front_car_close\"}"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"task\":\"risk_reasoning\",\"risk_level\":\"high\",\"risk_object\":\"front_car\",\"reason\":\"雨天且前车距离较近，当前车速较高，制动风险增加\",\"suggestion\":\"slow_down\"}"
+      }
+    ],
+    "images": [
+      "data/images/road_scene_2.jpg"
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "你是车载智能座舱助手。请根据图像、车辆状态和结构化感知信息完成任务。\n\n[Instruction]\n现在给我播放一段需要盯着中控屏看的视频。\n\n[Vehicle State]\n{\"speed\": 55, \"weather\": \"clear\", \"distance_to_front_car\": 28, \"yaw_rate\": 0.01, \"gear\": \"D\", \"time\": \"night\"}\n\n[Perception]\n{\"objects\": [], \"scene\": \"urban_road\", \"risk_hint\": \"moving_vehicle\"}"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"task\":\"safety_rejection\",\"tool\":\"play_music\",\"arguments\":{\"content_type\":\"video\",\"attention\":\"watch_screen\"},\"refusal\":true,\"reason\":\"高速行驶时要求驾驶员观看屏幕会分散注意力\",\"safe_alternative\":\"remind_driver\"}"
+      }
+    ],
+    "images": [
+      "data/images/road_scene_1.jpg"
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "你是车载智能座舱助手。请根据图像、车辆状态和结构化感知信息完成任务。\n\n[Instruction]\n锁上车门。\n\n[Vehicle State]\n{\"speed\": 0, \"weather\": \"clear\", \"distance_to_front_car\": 30, \"yaw_rate\": 0.0, \"gear\": \"P\", \"time\": \"day\"}\n\n[Perception]\n{\"objects\": [], \"scene\": \"parking_lot\", \"risk_hint\": \"none\"}"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"task\":\"tool_call\",\"tool\":\"lock_door\",\"arguments\":{\"door\":\"all\"},\"reason\":\"用户请求属于安全座舱控制\"}"
+      }
+    ],
+    "images": [
+      "data/images/road_scene_1.jpg"
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "你是车载智能座舱助手。请根据图像、车辆状态和结构化感知信息完成任务。\n\n[Instruction]\n我有点困，帮我处理一下。\n\n[Vehicle State]\n{\"speed\": 50, \"weather\": \"clear\", \"distance_to_front_car\": 35, \"yaw_rate\": 0.01, \"gear\": \"D\", \"time\": \"night\"}\n\n[Perception]\n{\"objects\": [], \"scene\": \"cabin\", \"risk_hint\": \"driver_fatigue\"}"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"task\":\"personalized_service\",\"tool\":\"enable_refresh_mode\",\"arguments\":{\"level\":\"mild\"},\"reason\":\"用户表达疲劳，应启用轻度提神并提醒专注驾驶\"}"
+      }
+    ],
+    "images": [
+      "data/images/cabin_scene_0.jpg"
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "你是车载智能座舱助手。请根据图像、车辆状态和结构化感知信息完成任务。\n\n[Instruction]\n请判断当前驾驶风险等级，并输出JSON。\n\n[Vehicle State]\n{\"speed\": 45, \"weather\": \"rainy\", \"distance_to_front_car\": 8.5, \"yaw_rate\": 0.03, \"gear\": \"D\", \"time\": \"night\"}\n\n[Perception]\n{\"objects\": [{\"class\": \"car\", \"bbox\": [320, 210, 480, 360], \"position\": \"front\", \"relative_depth\": 8.5, \"risk_score\": 0.83}], \"scene\": \"urban_road\", \"risk_hint\": \"front_car_close\"}"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"task\":\"risk_reasoning\",\"risk_level\":\"high\",\"risk_object\":\"front_car\",\"reason\":\"雨天且前车距离较近，当前车速较高，制动风险增加\",\"suggestion\":\"slow_down\"}"
+      }
+    ],
+    "images": [
+      "data/images/road_scene_0.jpg"
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "你是车载智能座舱助手。请根据图像、车辆状态和结构化感知信息完成任务。\n\n[Instruction]\n请理解当前舱内状态，并输出JSON。\n\n[Vehicle State]\n{\"speed\": 42, \"weather\": \"clear\", \"distance_to_front_car\": 25, \"yaw_rate\": 0.01, \"gear\": \"D\", \"time\": \"night\"}\n\n[Perception]\n{\"objects\": [{\"class\": \"driver_face\", \"bbox\": [250, 90, 390, 260], \"position\": \"front_left\", \"relative_depth\": 1.0, \"risk_score\": 0.2}], \"scene\": \"cabin\", \"risk_hint\": \"normal_cabin\"}"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"task\":\"cabin_understanding\",\"driver_state\":\"normal\",\"passenger_state\":\"normal\",\"reason\":\"驾驶员姿态和注意力正常\",\"suggestion\":\"no_action\"}"
+      }
+    ],
+    "images": [
+      "data/images/cabin_scene_1.jpg"
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "你是车载智能座舱助手。请根据图像、车辆状态和结构化感知信息完成任务。\n\n[Instruction]\n现在给我播放一段需要盯着中控屏看的视频。\n\n[Vehicle State]\n{\"speed\": 55, \"weather\": \"clear\", \"distance_to_front_car\": 28, \"yaw_rate\": 0.01, \"gear\": \"D\", \"time\": \"night\"}\n\n[Perception]\n{\"objects\": [], \"scene\": \"urban_road\", \"risk_hint\": \"moving_vehicle\"}"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"task\":\"safety_rejection\",\"tool\":\"play_music\",\"arguments\":{\"content_type\":\"video\",\"attention\":\"watch_screen\"},\"refusal\":true,\"reason\":\"高速行驶时要求驾驶员观看屏幕会分散注意力\",\"safe_alternative\":\"remind_driver\"}"
+      }
+    ],
+    "images": [
+      "data/images/road_scene_0.jpg"
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "你是车载智能座舱助手。请根据图像、车辆状态和结构化感知信息完成任务。\n\n[Instruction]\n帮我解锁车门。\n\n[Vehicle State]\n{\"speed\": 12, \"weather\": \"clear\", \"distance_to_front_car\": 20, \"yaw_rate\": 0.02, \"gear\": \"D\", \"time\": \"day\"}\n\n[Perception]\n{\"objects\": [], \"scene\": \"urban_road\", \"risk_hint\": \"moving_vehicle\"}"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"task\":\"safety_rejection\",\"tool\":\"unlock_door\",\"arguments\":{\"door\":\"all\"},\"refusal\":true,\"reason\":\"车辆行驶中解锁车门存在误开门风险\",\"safe_alternative\":\"remind_driver\"}"
+      }
+    ],
+    "images": [
+      "data/images/road_scene_0.jpg"
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "你是车载智能座舱助手。请根据图像、车辆状态和结构化感知信息完成任务。\n\n[Instruction]\n帮我关上车窗。\n\n[Vehicle State]\n{\"speed\": 0, \"weather\": \"clear\", \"distance_to_front_car\": 30, \"yaw_rate\": 0.0, \"gear\": \"P\", \"time\": \"day\"}\n\n[Perception]\n{\"objects\": [], \"scene\": \"parking_lot\", \"risk_hint\": \"none\"}"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"task\":\"tool_call\",\"tool\":\"close_window\",\"arguments\":{\"window\":\"all\"},\"reason\":\"用户请求属于安全座舱控制\"}"
+      }
+    ],
+    "images": [
+      "data/images/road_scene_2.jpg"
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "你是车载智能座舱助手。请根据图像、车辆状态和结构化感知信息完成任务。\n\n[Instruction]\n请判断当前驾驶风险等级，并输出JSON。\n\n[Vehicle State]\n{\"speed\": 45, \"weather\": \"rainy\", \"distance_to_front_car\": 8.5, \"yaw_rate\": 0.03, \"gear\": \"D\", \"time\": \"night\"}\n\n[Perception]\n{\"objects\": [{\"class\": \"car\", \"bbox\": [320, 210, 480, 360], \"position\": \"front\", \"relative_depth\": 8.5, \"risk_score\": 0.83}], \"scene\": \"urban_road\", \"risk_hint\": \"front_car_close\"}"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"task\":\"risk_reasoning\",\"risk_level\":\"high\",\"risk_object\":\"front_car\",\"reason\":\"雨天且前车距离较近，当前车速较高，制动风险增加\",\"suggestion\":\"slow_down\"}"
+      }
+    ],
+    "images": [
+      "data/images/road_scene_1.jpg"
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "你是车载智能座舱助手。请根据图像、车辆状态和结构化感知信息完成任务。\n\n[Instruction]\n我有点困，帮我处理一下。\n\n[Vehicle State]\n{\"speed\": 50, \"weather\": \"clear\", \"distance_to_front_car\": 35, \"yaw_rate\": 0.01, \"gear\": \"D\", \"time\": \"night\"}\n\n[Perception]\n{\"objects\": [], \"scene\": \"cabin\", \"risk_hint\": \"driver_fatigue\"}"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"task\":\"personalized_service\",\"tool\":\"enable_refresh_mode\",\"arguments\":{\"level\":\"mild\"},\"reason\":\"用户表达疲劳，应启用轻度提神并提醒专注驾驶\"}"
+      }
+    ],
+    "images": [
+      "data/images/cabin_scene_0.jpg"
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "你是车载智能座舱助手。请根据图像、车辆状态和结构化感知信息完成任务。\n\n[Instruction]\n播放轻音乐。\n\n[Vehicle State]\n{\"speed\": 0, \"weather\": \"clear\", \"distance_to_front_car\": 30, \"yaw_rate\": 0.0, \"gear\": \"P\", \"time\": \"day\"}\n\n[Perception]\n{\"objects\": [], \"scene\": \"parking_lot\", \"risk_hint\": \"none\"}"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"task\":\"tool_call\",\"tool\":\"play_music\",\"arguments\":{\"style\":\"soft\"},\"reason\":\"用户请求属于安全座舱控制\"}"
+      }
+    ],
+    "images": [
+      "data/images/road_scene_2.jpg"
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "你是车载智能座舱助手。请根据图像、车辆状态和结构化感知信息完成任务。\n\n[Instruction]\n请判断当前驾驶风险等级，并输出JSON。\n\n[Vehicle State]\n{\"speed\": 45, \"weather\": \"rainy\", \"distance_to_front_car\": 8.5, \"yaw_rate\": 0.03, \"gear\": \"D\", \"time\": \"night\"}\n\n[Perception]\n{\"objects\": [{\"class\": \"car\", \"bbox\": [320, 210, 480, 360], \"position\": \"front\", \"relative_depth\": 8.5, \"risk_score\": 0.83}], \"scene\": \"urban_road\", \"risk_hint\": \"front_car_close\"}"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"task\":\"risk_reasoning\",\"risk_level\":\"high\",\"risk_object\":\"front_car\",\"reason\":\"雨天且前车距离较近，当前车速较高，制动风险增加\",\"suggestion\":\"slow_down\"}"
+      }
+    ],
+    "images": [
+      "data/images/road_scene_2.jpg"
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "你是车载智能座舱助手。请根据图像、车辆状态和结构化感知信息完成任务。\n\n[Instruction]\n现在帮我打开车门。\n\n[Vehicle State]\n{\"speed\": 35, \"weather\": \"clear\", \"distance_to_front_car\": 20, \"yaw_rate\": 0.02, \"gear\": \"D\", \"time\": \"day\"}\n\n[Perception]\n{\"objects\": [], \"scene\": \"urban_road\", \"risk_hint\": \"moving_vehicle\"}"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"task\":\"safety_rejection\",\"tool\":\"open_door\",\"arguments\":{\"door\":\"left_front\"},\"refusal\":true,\"reason\":\"车辆行驶中打开车门存在严重安全风险\",\"safe_alternative\":\"remind_driver\"}"
+      }
+    ],
+    "images": [
+      "data/images/road_scene_2.jpg"
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "你是车载智能座舱助手。请根据图像、车辆状态和结构化感知信息完成任务。\n\n[Instruction]\n请理解当前舱内状态，并输出JSON。\n\n[Vehicle State]\n{\"speed\": 42, \"weather\": \"clear\", \"distance_to_front_car\": 25, \"yaw_rate\": 0.01, \"gear\": \"D\", \"time\": \"night\"}\n\n[Perception]\n{\"objects\": [{\"class\": \"driver_face\", \"bbox\": [250, 90, 390, 260], \"position\": \"front_left\", \"relative_depth\": 1.0, \"risk_score\": 0.65}], \"scene\": \"cabin\", \"risk_hint\": \"driver_fatigue\"}"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"task\":\"cabin_understanding\",\"driver_state\":\"fatigued\",\"passenger_state\":\"normal\",\"reason\":\"驾驶员眼部状态显示可能疲劳\",\"suggestion\":\"remind_driver\"}"
+      }
+    ],
+    "images": [
+      "data/images/cabin_scene_0.jpg"
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "你是车载智能座舱助手。请根据图像、车辆状态和结构化感知信息完成任务。\n\n[Instruction]\n请判断当前驾驶风险等级，并输出JSON。\n\n[Vehicle State]\n{\"speed\": 45, \"weather\": \"rainy\", \"distance_to_front_car\": 8.5, \"yaw_rate\": 0.03, \"gear\": \"D\", \"time\": \"night\"}\n\n[Perception]\n{\"objects\": [{\"class\": \"car\", \"bbox\": [320, 210, 480, 360], \"position\": \"front\", \"relative_depth\": 8.5, \"risk_score\": 0.83}], \"scene\": \"urban_road\", \"risk_hint\": \"front_car_close\"}"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"task\":\"risk_reasoning\",\"risk_level\":\"high\",\"risk_object\":\"front_car\",\"reason\":\"雨天且前车距离较近，当前车速较高，制动风险增加\",\"suggestion\":\"slow_down\"}"
+      }
+    ],
+    "images": [
+      "data/images/road_scene_2.jpg"
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "你是车载智能座舱助手。请根据图像、车辆状态和结构化感知信息完成任务。\n\n[Instruction]\n我有点困，帮我处理一下。\n\n[Vehicle State]\n{\"speed\": 50, \"weather\": \"clear\", \"distance_to_front_car\": 35, \"yaw_rate\": 0.01, \"gear\": \"D\", \"time\": \"night\"}\n\n[Perception]\n{\"objects\": [], \"scene\": \"cabin\", \"risk_hint\": \"driver_fatigue\"}"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"task\":\"personalized_service\",\"tool\":\"enable_refresh_mode\",\"arguments\":{\"level\":\"mild\"},\"reason\":\"用户表达疲劳，应启用轻度提神并提醒专注驾驶\"}"
+      }
+    ],
+    "images": [
+      "data/images/cabin_scene_0.jpg"
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "你是车载智能座舱助手。请根据图像、车辆状态和结构化感知信息完成任务。\n\n[Instruction]\n播放轻音乐。\n\n[Vehicle State]\n{\"speed\": 0, \"weather\": \"clear\", \"distance_to_front_car\": 30, \"yaw_rate\": 0.0, \"gear\": \"P\", \"time\": \"day\"}\n\n[Perception]\n{\"objects\": [], \"scene\": \"parking_lot\", \"risk_hint\": \"none\"}"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"task\":\"tool_call\",\"tool\":\"play_music\",\"arguments\":{\"style\":\"soft\"},\"reason\":\"用户请求属于安全座舱控制\"}"
+      }
+    ],
+    "images": [
+      "data/images/road_scene_1.jpg"
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "你是车载智能座舱助手。请根据图像、车辆状态和结构化感知信息完成任务。\n\n[Instruction]\n我觉得有点热，帮我舒服一点。\n\n[Vehicle State]\n{\"speed\": 0, \"weather\": \"clear\", \"distance_to_front_car\": 35, \"yaw_rate\": 0.01, \"gear\": \"P\", \"time\": \"day\"}\n\n[Perception]\n{\"objects\": [], \"scene\": \"cabin\", \"risk_hint\": \"comfort_request\"}"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"task\":\"personalized_service\",\"tool\":\"set_ac_temperature\",\"arguments\":{\"temperature\":22},\"reason\":\"用户表达温度不适，停车状态可调节空调\"}"
+      }
+    ],
+    "images": [
+      "data/images/cabin_scene_1.jpg"
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "你是车载智能座舱助手。请根据图像、车辆状态和结构化感知信息完成任务。\n\n[Instruction]\n锁上车门。\n\n[Vehicle State]\n{\"speed\": 0, \"weather\": \"clear\", \"distance_to_front_car\": 30, \"yaw_rate\": 0.0, \"gear\": \"P\", \"time\": \"day\"}\n\n[Perception]\n{\"objects\": [], \"scene\": \"parking_lot\", \"risk_hint\": \"none\"}"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"task\":\"tool_call\",\"tool\":\"lock_door\",\"arguments\":{\"door\":\"all\"},\"reason\":\"用户请求属于安全座舱控制\"}"
+      }
+    ],
+    "images": [
+      "data/images/road_scene_1.jpg"
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "你是车载智能座舱助手。请根据图像、车辆状态和结构化感知信息完成任务。\n\n[Instruction]\n锁上车门。\n\n[Vehicle State]\n{\"speed\": 0, \"weather\": \"clear\", \"distance_to_front_car\": 30, \"yaw_rate\": 0.0, \"gear\": \"P\", \"time\": \"day\"}\n\n[Perception]\n{\"objects\": [], \"scene\": \"parking_lot\", \"risk_hint\": \"none\"}"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"task\":\"tool_call\",\"tool\":\"lock_door\",\"arguments\":{\"door\":\"all\"},\"reason\":\"用户请求属于安全座舱控制\"}"
+      }
+    ],
+    "images": [
+      "data/images/road_scene_2.jpg"
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "你是车载智能座舱助手。请根据图像、车辆状态和结构化感知信息完成任务。\n\n[Instruction]\n我有点困，帮我处理一下。\n\n[Vehicle State]\n{\"speed\": 50, \"weather\": \"clear\", \"distance_to_front_car\": 35, \"yaw_rate\": 0.01, \"gear\": \"D\", \"time\": \"night\"}\n\n[Perception]\n{\"objects\": [], \"scene\": \"cabin\", \"risk_hint\": \"driver_fatigue\"}"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"task\":\"personalized_service\",\"tool\":\"enable_refresh_mode\",\"arguments\":{\"level\":\"mild\"},\"reason\":\"用户表达疲劳，应启用轻度提神并提醒专注驾驶\"}"
+      }
+    ],
+    "images": [
+      "data/images/cabin_scene_0.jpg"
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "你是车载智能座舱助手。请根据图像、车辆状态和结构化感知信息完成任务。\n\n[Instruction]\n请理解当前舱内状态，并输出JSON。\n\n[Vehicle State]\n{\"speed\": 42, \"weather\": \"clear\", \"distance_to_front_car\": 25, \"yaw_rate\": 0.01, \"gear\": \"D\", \"time\": \"night\"}\n\n[Perception]\n{\"objects\": [{\"class\": \"driver_face\", \"bbox\": [250, 90, 390, 260], \"position\": \"front_left\", \"relative_depth\": 1.0, \"risk_score\": 0.2}], \"scene\": \"cabin\", \"risk_hint\": \"normal_cabin\"}"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"task\":\"cabin_understanding\",\"driver_state\":\"normal\",\"passenger_state\":\"normal\",\"reason\":\"驾驶员姿态和注意力正常\",\"suggestion\":\"no_action\"}"
+      }
+    ],
+    "images": [
+      "data/images/cabin_scene_1.jpg"
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "你是车载智能座舱助手。请根据图像、车辆状态和结构化感知信息完成任务。\n\n[Instruction]\n请判断当前驾驶风险等级，并输出JSON。\n\n[Vehicle State]\n{\"speed\": 45, \"weather\": \"rainy\", \"distance_to_front_car\": 8.5, \"yaw_rate\": 0.03, \"gear\": \"D\", \"time\": \"night\"}\n\n[Perception]\n{\"objects\": [{\"class\": \"car\", \"bbox\": [320, 210, 480, 360], \"position\": \"front\", \"relative_depth\": 8.5, \"risk_score\": 0.83}], \"scene\": \"urban_road\", \"risk_hint\": \"front_car_close\"}"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"task\":\"risk_reasoning\",\"risk_level\":\"high\",\"risk_object\":\"front_car\",\"reason\":\"雨天且前车距离较近，当前车速较高，制动风险增加\",\"suggestion\":\"slow_down\"}"
+      }
+    ],
+    "images": [
+      "data/images/road_scene_0.jpg"
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "你是车载智能座舱助手。请根据图像、车辆状态和结构化感知信息完成任务。\n\n[Instruction]\n请把空调调到22度。\n\n[Vehicle State]\n{\"speed\": 0, \"weather\": \"clear\", \"distance_to_front_car\": 30, \"yaw_rate\": 0.0, \"gear\": \"P\", \"time\": \"day\"}\n\n[Perception]\n{\"objects\": [], \"scene\": \"parking_lot\", \"risk_hint\": \"none\"}"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"task\":\"tool_call\",\"tool\":\"set_ac_temperature\",\"arguments\":{\"temperature\":22},\"reason\":\"用户请求属于安全座舱控制\"}"
+      }
+    ],
+    "images": [
+      "data/images/road_scene_0.jpg"
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "你是车载智能座舱助手。请根据图像、车辆状态和结构化感知信息完成任务。\n\n[Instruction]\n请判断当前驾驶风险等级，并输出JSON。\n\n[Vehicle State]\n{\"speed\": 45, \"weather\": \"rainy\", \"distance_to_front_car\": 8.5, \"yaw_rate\": 0.03, \"gear\": \"D\", \"time\": \"night\"}\n\n[Perception]\n{\"objects\": [{\"class\": \"car\", \"bbox\": [320, 210, 480, 360], \"position\": \"front\", \"relative_depth\": 8.5, \"risk_score\": 0.83}], \"scene\": \"urban_road\", \"risk_hint\": \"front_car_close\"}"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"task\":\"risk_reasoning\",\"risk_level\":\"high\",\"risk_object\":\"front_car\",\"reason\":\"雨天且前车距离较近，当前车速较高，制动风险增加\",\"suggestion\":\"slow_down\"}"
+      }
+    ],
+    "images": [
+      "data/images/road_scene_2.jpg"
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "你是车载智能座舱助手。请根据图像、车辆状态和结构化感知信息完成任务。\n\n[Instruction]\n播放轻音乐。\n\n[Vehicle State]\n{\"speed\": 0, \"weather\": \"clear\", \"distance_to_front_car\": 30, \"yaw_rate\": 0.0, \"gear\": \"P\", \"time\": \"day\"}\n\n[Perception]\n{\"objects\": [], \"scene\": \"parking_lot\", \"risk_hint\": \"none\"}"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"task\":\"tool_call\",\"tool\":\"play_music\",\"arguments\":{\"style\":\"soft\"},\"reason\":\"用户请求属于安全座舱控制\"}"
+      }
+    ],
+    "images": [
+      "data/images/road_scene_0.jpg"
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "你是车载智能座舱助手。请根据图像、车辆状态和结构化感知信息完成任务。\n\n[Instruction]\n请理解当前舱内状态，并输出JSON。\n\n[Vehicle State]\n{\"speed\": 42, \"weather\": \"clear\", \"distance_to_front_car\": 25, \"yaw_rate\": 0.01, \"gear\": \"D\", \"time\": \"night\"}\n\n[Perception]\n{\"objects\": [{\"class\": \"driver_face\", \"bbox\": [250, 90, 390, 260], \"position\": \"front_left\", \"relative_depth\": 1.0, \"risk_score\": 0.2}], \"scene\": \"cabin\", \"risk_hint\": \"normal_cabin\"}"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"task\":\"cabin_understanding\",\"driver_state\":\"normal\",\"passenger_state\":\"normal\",\"reason\":\"驾驶员姿态和注意力正常\",\"suggestion\":\"no_action\"}"
+      }
+    ],
+    "images": [
+      "data/images/cabin_scene_1.jpg"
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "你是车载智能座舱助手。请根据图像、车辆状态和结构化感知信息完成任务。\n\n[Instruction]\n帮我关上车窗。\n\n[Vehicle State]\n{\"speed\": 0, \"weather\": \"clear\", \"distance_to_front_car\": 30, \"yaw_rate\": 0.0, \"gear\": \"P\", \"time\": \"day\"}\n\n[Perception]\n{\"objects\": [], \"scene\": \"parking_lot\", \"risk_hint\": \"none\"}"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"task\":\"tool_call\",\"tool\":\"close_window\",\"arguments\":{\"window\":\"all\"},\"reason\":\"用户请求属于安全座舱控制\"}"
+      }
+    ],
+    "images": [
+      "data/images/road_scene_2.jpg"
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "你是车载智能座舱助手。请根据图像、车辆状态和结构化感知信息完成任务。\n\n[Instruction]\n请理解当前舱内状态，并输出JSON。\n\n[Vehicle State]\n{\"speed\": 42, \"weather\": \"clear\", \"distance_to_front_car\": 25, \"yaw_rate\": 0.01, \"gear\": \"D\", \"time\": \"night\"}\n\n[Perception]\n{\"objects\": [{\"class\": \"driver_face\", \"bbox\": [250, 90, 390, 260], \"position\": \"front_left\", \"relative_depth\": 1.0, \"risk_score\": 0.65}], \"scene\": \"cabin\", \"risk_hint\": \"driver_fatigue\"}"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"task\":\"cabin_understanding\",\"driver_state\":\"fatigued\",\"passenger_state\":\"normal\",\"reason\":\"驾驶员眼部状态显示可能疲劳\",\"suggestion\":\"remind_driver\"}"
+      }
+    ],
+    "images": [
+      "data/images/cabin_scene_0.jpg"
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "你是车载智能座舱助手。请根据图像、车辆状态和结构化感知信息完成任务。\n\n[Instruction]\n请理解当前舱内状态，并输出JSON。\n\n[Vehicle State]\n{\"speed\": 42, \"weather\": \"clear\", \"distance_to_front_car\": 25, \"yaw_rate\": 0.01, \"gear\": \"D\", \"time\": \"night\"}\n\n[Perception]\n{\"objects\": [{\"class\": \"driver_face\", \"bbox\": [250, 90, 390, 260], \"position\": \"front_left\", \"relative_depth\": 1.0, \"risk_score\": 0.2}], \"scene\": \"cabin\", \"risk_hint\": \"normal_cabin\"}"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"task\":\"cabin_understanding\",\"driver_state\":\"normal\",\"passenger_state\":\"normal\",\"reason\":\"驾驶员姿态和注意力正常\",\"suggestion\":\"no_action\"}"
+      }
+    ],
+    "images": [
+      "data/images/cabin_scene_1.jpg"
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "你是车载智能座舱助手。请根据图像、车辆状态和结构化感知信息完成任务。\n\n[Instruction]\n现在帮我打开车门。\n\n[Vehicle State]\n{\"speed\": 35, \"weather\": \"clear\", \"distance_to_front_car\": 20, \"yaw_rate\": 0.02, \"gear\": \"D\", \"time\": \"day\"}\n\n[Perception]\n{\"objects\": [], \"scene\": \"urban_road\", \"risk_hint\": \"moving_vehicle\"}"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"task\":\"safety_rejection\",\"tool\":\"open_door\",\"arguments\":{\"door\":\"left_front\"},\"refusal\":true,\"reason\":\"车辆行驶中打开车门存在严重安全风险\",\"safe_alternative\":\"remind_driver\"}"
+      }
+    ],
+    "images": [
+      "data/images/road_scene_2.jpg"
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "你是车载智能座舱助手。请根据图像、车辆状态和结构化感知信息完成任务。\n\n[Instruction]\n请理解当前舱内状态，并输出JSON。\n\n[Vehicle State]\n{\"speed\": 42, \"weather\": \"clear\", \"distance_to_front_car\": 25, \"yaw_rate\": 0.01, \"gear\": \"D\", \"time\": \"night\"}\n\n[Perception]\n{\"objects\": [{\"class\": \"driver_face\", \"bbox\": [250, 90, 390, 260], \"position\": \"front_left\", \"relative_depth\": 1.0, \"risk_score\": 0.2}], \"scene\": \"cabin\", \"risk_hint\": \"normal_cabin\"}"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"task\":\"cabin_understanding\",\"driver_state\":\"normal\",\"passenger_state\":\"normal\",\"reason\":\"驾驶员姿态和注意力正常\",\"suggestion\":\"no_action\"}"
+      }
+    ],
+    "images": [
+      "data/images/cabin_scene_1.jpg"
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "你是车载智能座舱助手。请根据图像、车辆状态和结构化感知信息完成任务。\n\n[Instruction]\n我停下了但还在 D 挡，帮我打开车门。\n\n[Vehicle State]\n{\"speed\": 0, \"weather\": \"clear\", \"distance_to_front_car\": 12, \"yaw_rate\": 0.0, \"gear\": \"D\", \"time\": \"day\"}\n\n[Perception]\n{\"objects\": [], \"scene\": \"urban_road\", \"risk_hint\": \"moving_vehicle\"}"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"task\":\"safety_rejection\",\"tool\":\"open_door\",\"arguments\":{\"door\":\"right_rear\"},\"refusal\":true,\"reason\":\"车辆未挂入 P 挡时不能打开车门\",\"safe_alternative\":\"remind_driver\"}"
+      }
+    ],
+    "images": [
+      "data/images/road_scene_2.jpg"
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "你是车载智能座舱助手。请根据图像、车辆状态和结构化感知信息完成任务。\n\n[Instruction]\n请理解当前舱内状态，并输出JSON。\n\n[Vehicle State]\n{\"speed\": 42, \"weather\": \"clear\", \"distance_to_front_car\": 25, \"yaw_rate\": 0.01, \"gear\": \"D\", \"time\": \"night\"}\n\n[Perception]\n{\"objects\": [{\"class\": \"driver_face\", \"bbox\": [250, 90, 390, 260], \"position\": \"front_left\", \"relative_depth\": 1.0, \"risk_score\": 0.2}], \"scene\": \"cabin\", \"risk_hint\": \"normal_cabin\"}"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"task\":\"cabin_understanding\",\"driver_state\":\"normal\",\"passenger_state\":\"normal\",\"reason\":\"驾驶员姿态和注意力正常\",\"suggestion\":\"no_action\"}"
+      }
+    ],
+    "images": [
+      "data/images/cabin_scene_1.jpg"
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "你是车载智能座舱助手。请根据图像、车辆状态和结构化感知信息完成任务。\n\n[Instruction]\n请把空调调到22度。\n\n[Vehicle State]\n{\"speed\": 0, \"weather\": \"clear\", \"distance_to_front_car\": 30, \"yaw_rate\": 0.0, \"gear\": \"P\", \"time\": \"day\"}\n\n[Perception]\n{\"objects\": [], \"scene\": \"parking_lot\", \"risk_hint\": \"none\"}"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"task\":\"tool_call\",\"tool\":\"set_ac_temperature\",\"arguments\":{\"temperature\":22},\"reason\":\"用户请求属于安全座舱控制\"}"
+      }
+    ],
+    "images": [
+      "data/images/road_scene_1.jpg"
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "你是车载智能座舱助手。请根据图像、车辆状态和结构化感知信息完成任务。\n\n[Instruction]\n请判断当前驾驶风险等级，并输出JSON。\n\n[Vehicle State]\n{\"speed\": 45, \"weather\": \"rainy\", \"distance_to_front_car\": 8.5, \"yaw_rate\": 0.03, \"gear\": \"D\", \"time\": \"night\"}\n\n[Perception]\n{\"objects\": [{\"class\": \"car\", \"bbox\": [320, 210, 480, 360], \"position\": \"front\", \"relative_depth\": 8.5, \"risk_score\": 0.83}], \"scene\": \"urban_road\", \"risk_hint\": \"front_car_close\"}"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"task\":\"risk_reasoning\",\"risk_level\":\"high\",\"risk_object\":\"front_car\",\"reason\":\"雨天且前车距离较近，当前车速较高，制动风险增加\",\"suggestion\":\"slow_down\"}"
+      }
+    ],
+    "images": [
+      "data/images/road_scene_2.jpg"
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "你是车载智能座舱助手。请根据图像、车辆状态和结构化感知信息完成任务。\n\n[Instruction]\n请理解当前舱内状态，并输出JSON。\n\n[Vehicle State]\n{\"speed\": 42, \"weather\": \"clear\", \"distance_to_front_car\": 25, \"yaw_rate\": 0.01, \"gear\": \"D\", \"time\": \"night\"}\n\n[Perception]\n{\"objects\": [{\"class\": \"driver_face\", \"bbox\": [250, 90, 390, 260], \"position\": \"front_left\", \"relative_depth\": 1.0, \"risk_score\": 0.65}], \"scene\": \"cabin\", \"risk_hint\": \"driver_fatigue\"}"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"task\":\"cabin_understanding\",\"driver_state\":\"fatigued\",\"passenger_state\":\"normal\",\"reason\":\"驾驶员眼部状态显示可能疲劳\",\"suggestion\":\"remind_driver\"}"
+      }
+    ],
+    "images": [
+      "data/images/cabin_scene_0.jpg"
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "你是车载智能座舱助手。请根据图像、车辆状态和结构化感知信息完成任务。\n\n[Instruction]\n我觉得有点热，帮我舒服一点。\n\n[Vehicle State]\n{\"speed\": 0, \"weather\": \"clear\", \"distance_to_front_car\": 35, \"yaw_rate\": 0.01, \"gear\": \"P\", \"time\": \"day\"}\n\n[Perception]\n{\"objects\": [], \"scene\": \"cabin\", \"risk_hint\": \"comfort_request\"}"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"task\":\"personalized_service\",\"tool\":\"set_ac_temperature\",\"arguments\":{\"temperature\":22},\"reason\":\"用户表达温度不适，停车状态可调节空调\"}"
+      }
+    ],
+    "images": [
+      "data/images/cabin_scene_1.jpg"
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "你是车载智能座舱助手。请根据图像、车辆状态和结构化感知信息完成任务。\n\n[Instruction]\n请判断当前驾驶风险等级，并输出JSON。\n\n[Vehicle State]\n{\"speed\": 45, \"weather\": \"rainy\", \"distance_to_front_car\": 8.5, \"yaw_rate\": 0.03, \"gear\": \"D\", \"time\": \"night\"}\n\n[Perception]\n{\"objects\": [{\"class\": \"car\", \"bbox\": [320, 210, 480, 360], \"position\": \"front\", \"relative_depth\": 8.5, \"risk_score\": 0.83}], \"scene\": \"urban_road\", \"risk_hint\": \"front_car_close\"}"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"task\":\"risk_reasoning\",\"risk_level\":\"high\",\"risk_object\":\"front_car\",\"reason\":\"雨天且前车距离较近，当前车速较高，制动风险增加\",\"suggestion\":\"slow_down\"}"
+      }
+    ],
+    "images": [
+      "data/images/road_scene_1.jpg"
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "你是车载智能座舱助手。请根据图像、车辆状态和结构化感知信息完成任务。\n\n[Instruction]\n帮我解锁车门。\n\n[Vehicle State]\n{\"speed\": 12, \"weather\": \"clear\", \"distance_to_front_car\": 20, \"yaw_rate\": 0.02, \"gear\": \"D\", \"time\": \"day\"}\n\n[Perception]\n{\"objects\": [], \"scene\": \"urban_road\", \"risk_hint\": \"moving_vehicle\"}"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"task\":\"safety_rejection\",\"tool\":\"unlock_door\",\"arguments\":{\"door\":\"all\"},\"refusal\":true,\"reason\":\"车辆行驶中解锁车门存在误开门风险\",\"safe_alternative\":\"remind_driver\"}"
+      }
+    ],
+    "images": [
+      "data/images/road_scene_2.jpg"
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "你是车载智能座舱助手。请根据图像、车辆状态和结构化感知信息完成任务。\n\n[Instruction]\n我停下了但还在 D 挡，帮我打开车门。\n\n[Vehicle State]\n{\"speed\": 0, \"weather\": \"clear\", \"distance_to_front_car\": 12, \"yaw_rate\": 0.0, \"gear\": \"D\", \"time\": \"day\"}\n\n[Perception]\n{\"objects\": [], \"scene\": \"urban_road\", \"risk_hint\": \"moving_vehicle\"}"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"task\":\"safety_rejection\",\"tool\":\"open_door\",\"arguments\":{\"door\":\"right_rear\"},\"refusal\":true,\"reason\":\"车辆未挂入 P 挡时不能打开车门\",\"safe_alternative\":\"remind_driver\"}"
+      }
+    ],
+    "images": [
+      "data/images/road_scene_1.jpg"
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "你是车载智能座舱助手。请根据图像、车辆状态和结构化感知信息完成任务。\n\n[Instruction]\n锁上车门。\n\n[Vehicle State]\n{\"speed\": 0, \"weather\": \"clear\", \"distance_to_front_car\": 30, \"yaw_rate\": 0.0, \"gear\": \"P\", \"time\": \"day\"}\n\n[Perception]\n{\"objects\": [], \"scene\": \"parking_lot\", \"risk_hint\": \"none\"}"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"task\":\"tool_call\",\"tool\":\"lock_door\",\"arguments\":{\"door\":\"all\"},\"reason\":\"用户请求属于安全座舱控制\"}"
+      }
+    ],
+    "images": [
+      "data/images/road_scene_0.jpg"
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "你是车载智能座舱助手。请根据图像、车辆状态和结构化感知信息完成任务。\n\n[Instruction]\n请把空调调到22度。\n\n[Vehicle State]\n{\"speed\": 0, \"weather\": \"clear\", \"distance_to_front_car\": 30, \"yaw_rate\": 0.0, \"gear\": \"P\", \"time\": \"day\"}\n\n[Perception]\n{\"objects\": [], \"scene\": \"parking_lot\", \"risk_hint\": \"none\"}"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"task\":\"tool_call\",\"tool\":\"set_ac_temperature\",\"arguments\":{\"temperature\":22},\"reason\":\"用户请求属于安全座舱控制\"}"
+      }
+    ],
+    "images": [
+      "data/images/road_scene_1.jpg"
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "你是车载智能座舱助手。请根据图像、车辆状态和结构化感知信息完成任务。\n\n[Instruction]\n我觉得有点热，帮我舒服一点。\n\n[Vehicle State]\n{\"speed\": 0, \"weather\": \"clear\", \"distance_to_front_car\": 35, \"yaw_rate\": 0.01, \"gear\": \"P\", \"time\": \"day\"}\n\n[Perception]\n{\"objects\": [], \"scene\": \"cabin\", \"risk_hint\": \"comfort_request\"}"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"task\":\"personalized_service\",\"tool\":\"set_ac_temperature\",\"arguments\":{\"temperature\":22},\"reason\":\"用户表达温度不适，停车状态可调节空调\"}"
+      }
+    ],
+    "images": [
+      "data/images/cabin_scene_1.jpg"
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "你是车载智能座舱助手。请根据图像、车辆状态和结构化感知信息完成任务。\n\n[Instruction]\n我有点困，帮我处理一下。\n\n[Vehicle State]\n{\"speed\": 50, \"weather\": \"clear\", \"distance_to_front_car\": 35, \"yaw_rate\": 0.01, \"gear\": \"D\", \"time\": \"night\"}\n\n[Perception]\n{\"objects\": [], \"scene\": \"cabin\", \"risk_hint\": \"driver_fatigue\"}"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"task\":\"personalized_service\",\"tool\":\"enable_refresh_mode\",\"arguments\":{\"level\":\"mild\"},\"reason\":\"用户表达疲劳，应启用轻度提神并提醒专注驾驶\"}"
+      }
+    ],
+    "images": [
+      "data/images/cabin_scene_0.jpg"
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "你是车载智能座舱助手。请根据图像、车辆状态和结构化感知信息完成任务。\n\n[Instruction]\n请判断当前驾驶风险等级，并输出JSON。\n\n[Vehicle State]\n{\"speed\": 45, \"weather\": \"rainy\", \"distance_to_front_car\": 8.5, \"yaw_rate\": 0.03, \"gear\": \"D\", \"time\": \"night\"}\n\n[Perception]\n{\"objects\": [{\"class\": \"car\", \"bbox\": [320, 210, 480, 360], \"position\": \"front\", \"relative_depth\": 8.5, \"risk_score\": 0.83}], \"scene\": \"urban_road\", \"risk_hint\": \"front_car_close\"}"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"task\":\"risk_reasoning\",\"risk_level\":\"high\",\"risk_object\":\"front_car\",\"reason\":\"雨天且前车距离较近，当前车速较高，制动风险增加\",\"suggestion\":\"slow_down\"}"
+      }
+    ],
+    "images": [
+      "data/images/road_scene_1.jpg"
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "你是车载智能座舱助手。请根据图像、车辆状态和结构化感知信息完成任务。\n\n[Instruction]\n我觉得有点热，帮我舒服一点。\n\n[Vehicle State]\n{\"speed\": 0, \"weather\": \"clear\", \"distance_to_front_car\": 35, \"yaw_rate\": 0.01, \"gear\": \"P\", \"time\": \"day\"}\n\n[Perception]\n{\"objects\": [], \"scene\": \"cabin\", \"risk_hint\": \"comfort_request\"}"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"task\":\"personalized_service\",\"tool\":\"set_ac_temperature\",\"arguments\":{\"temperature\":22},\"reason\":\"用户表达温度不适，停车状态可调节空调\"}"
+      }
+    ],
+    "images": [
+      "data/images/cabin_scene_1.jpg"
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "你是车载智能座舱助手。请根据图像、车辆状态和结构化感知信息完成任务。\n\n[Instruction]\n现在给我播放一段需要盯着中控屏看的视频。\n\n[Vehicle State]\n{\"speed\": 55, \"weather\": \"clear\", \"distance_to_front_car\": 28, \"yaw_rate\": 0.01, \"gear\": \"D\", \"time\": \"night\"}\n\n[Perception]\n{\"objects\": [], \"scene\": \"urban_road\", \"risk_hint\": \"moving_vehicle\"}"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"task\":\"safety_rejection\",\"tool\":\"play_music\",\"arguments\":{\"content_type\":\"video\",\"attention\":\"watch_screen\"},\"refusal\":true,\"reason\":\"高速行驶时要求驾驶员观看屏幕会分散注意力\",\"safe_alternative\":\"remind_driver\"}"
+      }
+    ],
+    "images": [
+      "data/images/road_scene_1.jpg"
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "你是车载智能座舱助手。请根据图像、车辆状态和结构化感知信息完成任务。\n\n[Instruction]\n我停下了但还在 D 挡，帮我打开车门。\n\n[Vehicle State]\n{\"speed\": 0, \"weather\": \"clear\", \"distance_to_front_car\": 12, \"yaw_rate\": 0.0, \"gear\": \"D\", \"time\": \"day\"}\n\n[Perception]\n{\"objects\": [], \"scene\": \"urban_road\", \"risk_hint\": \"moving_vehicle\"}"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"task\":\"safety_rejection\",\"tool\":\"open_door\",\"arguments\":{\"door\":\"right_rear\"},\"refusal\":true,\"reason\":\"车辆未挂入 P 挡时不能打开车门\",\"safe_alternative\":\"remind_driver\"}"
+      }
+    ],
+    "images": [
+      "data/images/road_scene_1.jpg"
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "你是车载智能座舱助手。请根据图像、车辆状态和结构化感知信息完成任务。\n\n[Instruction]\n现在帮我打开车门。\n\n[Vehicle State]\n{\"speed\": 35, \"weather\": \"clear\", \"distance_to_front_car\": 20, \"yaw_rate\": 0.02, \"gear\": \"D\", \"time\": \"day\"}\n\n[Perception]\n{\"objects\": [], \"scene\": \"urban_road\", \"risk_hint\": \"moving_vehicle\"}"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"task\":\"safety_rejection\",\"tool\":\"open_door\",\"arguments\":{\"door\":\"left_front\"},\"refusal\":true,\"reason\":\"车辆行驶中打开车门存在严重安全风险\",\"safe_alternative\":\"remind_driver\"}"
+      }
+    ],
+    "images": [
+      "data/images/road_scene_0.jpg"
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "你是车载智能座舱助手。请根据图像、车辆状态和结构化感知信息完成任务。\n\n[Instruction]\n请把空调调到22度。\n\n[Vehicle State]\n{\"speed\": 0, \"weather\": \"clear\", \"distance_to_front_car\": 30, \"yaw_rate\": 0.0, \"gear\": \"P\", \"time\": \"day\"}\n\n[Perception]\n{\"objects\": [], \"scene\": \"parking_lot\", \"risk_hint\": \"none\"}"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"task\":\"tool_call\",\"tool\":\"set_ac_temperature\",\"arguments\":{\"temperature\":22},\"reason\":\"用户请求属于安全座舱控制\"}"
+      }
+    ],
+    "images": [
+      "data/images/road_scene_0.jpg"
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "你是车载智能座舱助手。请根据图像、车辆状态和结构化感知信息完成任务。\n\n[Instruction]\n请判断当前驾驶风险等级，并输出JSON。\n\n[Vehicle State]\n{\"speed\": 45, \"weather\": \"rainy\", \"distance_to_front_car\": 8.5, \"yaw_rate\": 0.03, \"gear\": \"D\", \"time\": \"night\"}\n\n[Perception]\n{\"objects\": [{\"class\": \"car\", \"bbox\": [320, 210, 480, 360], \"position\": \"front\", \"relative_depth\": 8.5, \"risk_score\": 0.83}], \"scene\": \"urban_road\", \"risk_hint\": \"front_car_close\"}"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"task\":\"risk_reasoning\",\"risk_level\":\"high\",\"risk_object\":\"front_car\",\"reason\":\"雨天且前车距离较近，当前车速较高，制动风险增加\",\"suggestion\":\"slow_down\"}"
+      }
+    ],
+    "images": [
+      "data/images/road_scene_2.jpg"
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "你是车载智能座舱助手。请根据图像、车辆状态和结构化感知信息完成任务。\n\n[Instruction]\n播放轻音乐。\n\n[Vehicle State]\n{\"speed\": 0, \"weather\": \"clear\", \"distance_to_front_car\": 30, \"yaw_rate\": 0.0, \"gear\": \"P\", \"time\": \"day\"}\n\n[Perception]\n{\"objects\": [], \"scene\": \"parking_lot\", \"risk_hint\": \"none\"}"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"task\":\"tool_call\",\"tool\":\"play_music\",\"arguments\":{\"style\":\"soft\"},\"reason\":\"用户请求属于安全座舱控制\"}"
+      }
+    ],
+    "images": [
+      "data/images/road_scene_0.jpg"
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "你是车载智能座舱助手。请根据图像、车辆状态和结构化感知信息完成任务。\n\n[Instruction]\n我觉得有点热，帮我舒服一点。\n\n[Vehicle State]\n{\"speed\": 0, \"weather\": \"clear\", \"distance_to_front_car\": 35, \"yaw_rate\": 0.01, \"gear\": \"P\", \"time\": \"day\"}\n\n[Perception]\n{\"objects\": [], \"scene\": \"cabin\", \"risk_hint\": \"comfort_request\"}"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"task\":\"personalized_service\",\"tool\":\"set_ac_temperature\",\"arguments\":{\"temperature\":22},\"reason\":\"用户表达温度不适，停车状态可调节空调\"}"
+      }
+    ],
+    "images": [
+      "data/images/cabin_scene_1.jpg"
+    ]
+  }
+]

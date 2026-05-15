@@ -11,10 +11,9 @@ python src/eval/base_infer_qwen25vl.py \
   --output outputs/eval_results/qwen25vl_3b_smoke_predictions.jsonl \
   --model_name_or_path "$MODEL_DIR" \
   --max_samples "$MAX_SAMPLES" \
-  --load_in_4bit
+  --bf16
 
 python src/eval/run_all_eval.py \
   --predictions outputs/eval_results/qwen25vl_3b_smoke_predictions.jsonl \
   --output outputs/eval_results/qwen25vl_3b_smoke_metrics.json \
   --bad_cases_output outputs/cases/qwen25vl_3b_smoke_bad_cases.jsonl
-

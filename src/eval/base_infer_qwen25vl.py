@@ -79,6 +79,7 @@ def make_prompt(sample: dict[str, Any]) -> str:
     return (
         "You are DriveMind-VL, an in-vehicle multimodal assistant.\n"
         "Use the image, vehicle_state, perception JSON, and user instruction to complete the task.\n"
+        "If the image is a synthetic placeholder, ignore any rendered placeholder text in the image.\n"
         "Return ONLY one valid JSON object. Do not use Markdown. Do not add explanations outside JSON.\n"
         "The JSON must follow this expected schema:\n"
         f"{schema}\n\n"
@@ -150,24 +151,30 @@ def load_real_model(args: argparse.Namespace):
 
 def run_real(samples: list[dict[str, Any]], output_path: Path, args: argparse.Namespace) -> int:
     try:
-        from PIL import Image
         import torch
+        from qwen_vl_utils import process_vision_info
     except Exception as exc:
-        raise RuntimeError("Real inference requires Pillow and torch.") from exc
+        raise RuntimeError("Real inference requires torch and qwen-vl-utils.") from exc
 
     model, processor = load_real_model(args)
     rows = []
     for sample in samples:
         image_path = Path(sample.get("image", ""))
-        image = Image.open(image_path).convert("RGB") if image_path.exists() else None
         content: list[dict[str, Any]] = []
-        if image is not None:
-            content.append({"type": "image", "image": image})
+        if image_path.exists() and not args.text_only:
+            content.append({"type": "image", "image": str(image_path)})
         content.append({"type": "text", "text": make_prompt(sample)})
         messages = [{"role": "user", "content": content}]
 
         text = processor.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
-        inputs = processor(text=[text], images=[image] if image is not None else None, return_tensors="pt")
+        image_inputs, video_inputs = process_vision_info(messages)
+        inputs = processor(
+            text=[text],
+            images=image_inputs,
+            videos=video_inputs,
+            padding=True,
+            return_tensors="pt",
+        )
         inputs = {key: value.to(model.device) if hasattr(value, "to") else value for key, value in inputs.items()}
         with torch.inference_mode():
             generated_ids = model.generate(**inputs, max_new_tokens=args.max_new_tokens, do_sample=False)
@@ -204,6 +211,7 @@ def main() -> None:
     parser.add_argument("--load_in_8bit", action="store_true")
     parser.add_argument("--bf16", action="store_true")
     parser.add_argument("--device_map", default="auto")
+    parser.add_argument("--text_only", action="store_true", help="Skip image input for debugging output formatting.")
     args = parser.parse_args()
 
     samples = load_jsonl(Path(args.input), args.max_samples)

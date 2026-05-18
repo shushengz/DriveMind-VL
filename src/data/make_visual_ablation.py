@@ -43,14 +43,24 @@ def create_blank_image(path: Path, size: tuple[int, int]) -> None:
     image.save(path)
 
 
+def row_image_paths(row: dict[str, Any]) -> list[str]:
+    external = row.get("meta", {}).get("external", {})
+    paths = external.get("image_paths", []) if isinstance(external, dict) else []
+    if isinstance(paths, list) and paths:
+        return [str(path) for path in paths if str(path)]
+    image = str(row.get("image", ""))
+    return [image] if image else []
+
+
 def build_variant(rows: list[dict[str, Any]], mode: str, blank_image_path: Path, blank_size: tuple[int, int]) -> list[dict[str, Any]]:
     if not rows:
         return []
     if mode == "wrong_image":
-        images = [row.get("image", "") for row in rows]
+        images = [row_image_paths(row) for row in rows]
     elif mode == "blank_image":
         create_blank_image(blank_image_path, blank_size)
-        images = [blank_image_path.as_posix()] * len(rows)
+        max_frames = max((len(row_image_paths(row)) for row in rows), default=1)
+        images = [[blank_image_path.as_posix()] * max_frames for _ in rows]
     else:
         raise ValueError(f"unsupported mode: {mode}")
 
@@ -58,14 +68,18 @@ def build_variant(rows: list[dict[str, Any]], mode: str, blank_image_path: Path,
     for idx, row in enumerate(rows):
         new_row = json.loads(json.dumps(row, ensure_ascii=False))
         if mode == "wrong_image":
-            new_row["image"] = images[(idx + 1) % len(images)]
+            replacement_paths = images[(idx + 1) % len(images)]
         else:
-            new_row["image"] = images[idx]
+            replacement_paths = images[idx]
+        new_row["image"] = replacement_paths[0] if replacement_paths else ""
         meta = new_row.setdefault("meta", {})
         external = meta.setdefault("external", {})
         meta["visual_ablation"] = mode
         external["original_image"] = row.get("image", "")
+        external["original_image_paths"] = row_image_paths(row)
         external["ablated_image"] = new_row.get("image", "")
+        external["image_paths"] = replacement_paths
+        external["ablated_image_paths"] = replacement_paths
         variant.append(new_row)
     return variant
 

@@ -50,8 +50,11 @@ def validate_sample(sample: dict[str, Any]) -> list[str]:
         if field not in sample:
             errors.append(f"missing_field:{field}")
     image = sample.get("image")
+    video = sample.get("video")
     if image and not Path(image).exists():
         errors.append("image_not_found")
+    if video and not Path(video).exists():
+        errors.append("video_not_found")
     answer = sample.get("answer")
     if not isinstance(answer, dict):
         errors.append("answer_not_dict")

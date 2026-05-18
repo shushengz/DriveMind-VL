@@ -52,5 +52,7 @@ Updated after the local MVP implementation.
 - [x] Add grouped by-source eval and error analysis scripts
 - [x] Run 7-sample IntelliCockpitBench external smoke eval with Qwen2.5-VL-3B
 - [x] Run visual grounding ablation on IntelliCockpitBench samples
+- [x] Add IntelliCockpitBench dataset audit and balanced subset builder
+- [x] Add LingoQA metadata-only download helper, subset adapter, and dry-eval script
 - [ ] Expand argument hard cases to 300-500 samples
 - [ ] Run second 3B LoRA with richer data

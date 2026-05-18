@@ -18,6 +18,7 @@ try:
     from src.eval.eval_risk import risk_accuracy
     from src.eval.eval_tool_call import tool_accuracy
     from src.eval.eval_safety import unsafe_rejection_rate
+    from src.eval.refusal_detection import refusal_summary
     from src.rewards.total_reward import total_reward
 except Exception:
     from agent.output_parser import parse_model_output
@@ -25,6 +26,7 @@ except Exception:
     from eval_risk import risk_accuracy
     from eval_tool_call import tool_accuracy
     from eval_safety import unsafe_rejection_rate
+    from refusal_detection import refusal_summary
     from rewards.total_reward import total_reward
 
 
@@ -57,6 +59,8 @@ def compute_metrics(rows: list[dict[str, Any]]) -> dict[str, float]:
     ]
     schema_scores = [schema_completeness(row) for row in rows]
     reason_scores = [reason_keyword_hit(row) for row in rows]
+    external_rows = [row for row in rows if row.get("meta", {}).get("task_type") == "external_vqa"]
+    external_refusals = refusal_summary(external_rows)
     return {
         "json_validity": round(json_validity(rows), 4),
         "risk_accuracy": round(risk_accuracy(rows), 4),
@@ -66,6 +70,7 @@ def compute_metrics(rows: list[dict[str, Any]]) -> dict[str, float]:
         "schema_completeness": round(sum(schema_scores) / len(schema_scores), 4) if schema_scores else 0.0,
         "reason_keyword_hit": round(sum(reason_scores) / len(reason_scores), 4) if reason_scores else 0.0,
         "external_answer_f1": round(external_answer_f1(rows), 4),
+        "external_refusal_rate": float(external_refusals["refusal_rate"]),
         "avg_reward": round(sum(rewards) / len(rewards), 4) if rewards else 0.0,
     }
 

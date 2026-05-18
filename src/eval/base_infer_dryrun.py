@@ -35,7 +35,7 @@ def perturb_prediction(sample: dict[str, Any], idx: int) -> dict[str, Any] | str
         pred["tool"] = "play_music" if gold.get("tool") != "play_music" else "set_ac_temperature"
         pred["arguments"] = {}
     elif task == "safety_rejection":
-        pred = {"task": "tool_call", "tool": gold.get("tool", "open_door"), "arguments": gold.get("arguments", {}), "reason": "执行用户请求"}
+        pred = {"task": "tool_call", "tool": gold.get("tool", "open_door"), "arguments": gold.get("arguments", {}), "reason": "execute user request"}
     elif task == "cabin_understanding":
         pred["driver_state"] = "normal" if gold.get("driver_state") != "normal" else "fatigued"
     elif task == "external_vqa":
@@ -55,6 +55,7 @@ def run(input_path: Path, output_path: Path) -> int:
                 "gold": sample.get("answer", {}),
                 "vehicle_state": sample.get("vehicle_state", {}),
                 "meta": sample.get("meta", {}),
+                "media": {"image": sample.get("image", ""), "video": sample.get("video", "")},
             }
             f.write(json.dumps(row, ensure_ascii=False) + "\n")
     return len(samples)

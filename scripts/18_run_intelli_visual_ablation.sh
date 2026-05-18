@@ -59,3 +59,5 @@ python src/eval/compare_ablation_metrics.py \
   --wrong_image outputs/eval_results/intelli_wrong_image_metrics_by_source.json \
   --blank_image outputs/eval_results/intelli_blank_image_metrics_by_source.json \
   --output outputs/eval_results/intelli_visual_ablation_summary.json
+
+bash scripts/19_analyze_intelli_ablation_breakdown.sh

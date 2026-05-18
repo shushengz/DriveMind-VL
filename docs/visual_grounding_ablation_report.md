@@ -38,6 +38,16 @@ The normal-image run performs better than text-only and wrong-image runs, so the
 
 The result supports a stricter next step: expand IntelliCockpitBench samples and break external VQA into subskills such as counting, object recognition, spatial localization, weather/road condition, and scene completeness. Text-only and wrong-image controls should remain mandatory for future external reports.
 
+## Stricter Per-Case Gap
+
+A stricter follow-up analysis is recorded in `docs/intelli_ablation_breakdown_report.md`. It computes:
+
+```text
+visual_dependency_gap = normal_f1 - max(text_only_f1, wrong_image_f1, blank_image_f1)
+```
+
+On the 7-sample smoke set, the overall per-case visual dependency gap is `-0.0207`. Counting and weather/road-condition samples have positive gaps, while object recognition and spatial/scene detail remain weak. This is a stronger warning that the current sample is too small for a robust grounding claim.
+
 ## Updated Metric Note
 
 `external_vqa` reward was updated so its task component uses answer token-F1 instead of only task-name matching. This makes `avg_reward` less misleading for external VQA, but `external_answer_f1` remains the primary metric for this smoke test.

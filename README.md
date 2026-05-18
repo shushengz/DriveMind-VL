@@ -119,6 +119,55 @@ bash scripts/18_run_intelli_visual_ablation.sh \
 
 See `docs/visual_grounding_ablation_report.md` for the first normal/text-only/wrong-image/blank-image comparison.
 
+For capability-level and per-case visual dependency analysis after the ablation has run:
+
+```bash
+bash scripts/19_analyze_intelli_ablation_breakdown.sh
+```
+
+See `docs/intelli_ablation_breakdown_report.md` for the stricter per-case gap interpretation.
+
+To build a larger balanced IntelliCockpitBench subset after obtaining the full official JSONL and image directory:
+
+```bash
+TARGET_SIZE=100 bash scripts/20_build_intelli_eval_subset.sh \
+  /path/to/full/english_test.jsonl \
+  /path/to/full/images
+```
+
+See `docs/intelli_data_scaling_plan.md` and `docs/intelli_data_access_request.md`.
+
+Alternative public datasets are tracked in `docs/public_dataset_options.md`. The current recommended next adapters are LingoQA, DriveBench, Talk2CarSlim, and Drive&Act.
+
+LingoQA metadata can be downloaded and converted without downloading videos:
+
+```bash
+ACCEPT_LINGOQA_TERMS=1 bash scripts/22_download_lingoqa_metadata.sh
+```
+
+The download helper requires explicit upstream license acknowledgement through the script flag and only writes the small evaluation annotation table to `data/external/lingoqa/evaluation.parquet`.
+
+```bash
+TARGET_SIZE=100 bash scripts/21_prepare_lingoqa_subset.sh \
+  data/external/lingoqa/evaluation.parquet
+```
+
+If the official evaluation `images.zip` has been extracted under `data/external/lingoqa/images`, map real key frames into the subset:
+
+```bash
+IMAGE_ROOT=data/external/lingoqa \
+TARGET_SIZE=100 bash scripts/21_prepare_lingoqa_subset.sh \
+  data/external/lingoqa/val.parquet
+```
+
+Run a metadata-only dry evaluation to validate schema, metrics, and grouped reporting:
+
+```bash
+bash scripts/23_run_lingoqa_dry_eval.sh
+```
+
+LingoQA is video VQA. Real visual inference needs local videos or extracted frames; metadata-only conversion is still useful for auditing and text-only baselines.
+
 ## Safety Guard
 
 `src/agent/safety_guard.py` blocks unsafe tool calls such as opening or unlocking doors while moving and blocks unknown tools by default.

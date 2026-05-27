@@ -1,0 +1,27 @@
+model_path: /root/autodl-tmp/models/Qwen2.5-VL-3B-Instruct
+train_file: data/train/sft_v3_r3/lingoqa_sft_v3_r3.jsonl
+init_adapter: checkpoints/qwen25vl_lora_sft_v2/
+output_dir: checkpoints/qwen25vl_lora_sft_v3_r3_lingo_smoke/
+log_dir: outputs/train_logs/sft_v3_r3_lingo_smoke/
+
+method: qlora
+lora_r: 16
+lora_alpha: 32
+lora_dropout: 0.05
+
+batch_size: 1
+gradient_accumulation_steps: 8
+learning_rate: 5e-6
+max_steps: 100
+save_steps: 50
+eval_steps: 50
+warmup_ratio: 0.03
+
+train_samples: 1000
+eval_samples: 100
+bf16: true
+qlora: true
+gradient_checkpointing: true
+max_new_tokens: 64
+max_pixels: 200704
+max_images: 3

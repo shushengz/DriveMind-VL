@@ -1,0 +1,23 @@
+model_path: /root/autodl-tmp/models/Qwen2.5-VL-3B-Instruct
+init_adapter: checkpoints/qwen25vl_lora_sft_v3_r3_lingo_smoke/
+reference_adapter: checkpoints/qwen25vl_lora_sft_v3_r3_lingo_smoke/
+preference_file: data/train/preference_v8/preference_v8_pairs.jsonl
+output_dir: checkpoints/qwen25vl_lora_dpo_v8_lingo_smoke/
+log_dir: outputs/train_logs/dpo_v8_lingo_smoke/
+
+method: dpo
+reference_free: false
+beta: 0.05
+learning_rate: 2.0e-7
+max_steps: 50
+save_steps: 25
+eval_steps: 25
+batch_size: 1
+gradient_accumulation_steps: 8
+bf16: true
+qlora: true
+gradient_checkpointing: true
+max_new_tokens: 64
+max_pixels: 200704
+max_images: 3
+train_samples: 500

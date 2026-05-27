@@ -1,0 +1,19 @@
+# Draft only. Start with 4B before considering this larger smoke.
+model: /root/autodl-tmp/models/Qwen3-VL-8B-Instruct
+dataset: data/qwen3_vl/ms_swift/sft_lingoqa_r3_train.jsonl
+output_dir: checkpoints/qwen3_vl_8b_lora_sft_lingoqa_smoke
+train_type: lora
+tuner_type: lora
+lora_rank: 16
+lora_alpha: 32
+learning_rate: 1.0e-5
+max_steps: 100
+save_steps: 50
+per_device_train_batch_size: 1
+gradient_accumulation_steps: 8
+bf16: true
+gradient_checkpointing: true
+freeze_vit: true
+max_length: 2048
+data_policy: non_heldout_train_only
+warning: "Draft only; measure memory with 4B base/SFT first. Do not quantize a vision tower that will be tuned."

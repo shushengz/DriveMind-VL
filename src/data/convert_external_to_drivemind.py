@@ -9,8 +9,15 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 from pathlib import Path
 from typing import Any, Iterable
+
+ROOT = Path(__file__).resolve().parents[2]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from src.data.external_vqa_taxonomy import infer_external_vqa_capability
 
 
 SUPPORTED_SOURCES = {
@@ -59,6 +66,72 @@ def load_records(path: Path) -> list[dict[str, Any]]:
     return records
 
 
+def load_json_obj(path: Path) -> Any:
+    with path.open("r", encoding="utf-8-sig") as f:
+        if path.suffix.lower() == ".jsonl":
+            return [json.loads(line) for line in f if line.strip()]
+        return json.load(f)
+
+
+def flatten_drivelm_records(path: Path) -> list[dict[str, Any]]:
+    obj = load_json_obj(path)
+    if isinstance(obj, list):
+        return [row for row in obj if isinstance(row, dict)]
+    if not isinstance(obj, dict):
+        return []
+    if any(key in obj for key in ("data", "records", "samples", "items")):
+        return load_records(path)
+
+    rows: list[dict[str, Any]] = []
+    for scene_token, scene in obj.items():
+        if not isinstance(scene, dict):
+            continue
+        scene_description = scene.get("scene_description", "")
+        key_frames = scene.get("key_frames", {})
+        if not isinstance(key_frames, dict):
+            continue
+        for frame_token, frame in key_frames.items():
+            if not isinstance(frame, dict):
+                continue
+            image_paths = frame.get("image_paths", {})
+            key_object_infos = frame.get("key_object_infos", {})
+            qa_by_task = frame.get("QA", {})
+            if not isinstance(qa_by_task, dict):
+                continue
+            for task_name, qa_items in qa_by_task.items():
+                if not isinstance(qa_items, list):
+                    continue
+                for qa_index, qa in enumerate(qa_items, start=1):
+                    if not isinstance(qa, dict):
+                        continue
+                    question = first_present(qa, ["Q", "question", "query"], "")
+                    answer = first_present(qa, ["A", "answer", "gt_answer"], "")
+                    if not question and not answer:
+                        continue
+                    rows.append(
+                        {
+                            "id": f"{scene_token}_{frame_token}_{task_name}_{qa_index:03d}",
+                            "scene_token": scene_token,
+                            "sample_token": frame_token,
+                            "question": question,
+                            "answer": answer,
+                            "category": task_name,
+                            "subcategory": first_present(qa, ["layer", "cluster"], ""),
+                            "context": first_present(qa, ["C", "context"], ""),
+                            "con_up": qa.get("con_up"),
+                            "con_down": qa.get("con_down"),
+                            "layer": qa.get("layer"),
+                            "cluster": qa.get("cluster"),
+                            "scene": scene_description,
+                            "scene_description": scene_description,
+                            "image_paths": image_paths,
+                            "objects": key_object_infos,
+                            "raw_qa": qa,
+                        }
+                    )
+    return rows
+
+
 def dump_jsonl(records: Iterable[dict[str, Any]], path: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     try:
@@ -85,22 +158,78 @@ def normalize_reference(value: Any) -> str:
     return str(value) if value is not None else ""
 
 
+def as_list(value: Any) -> list[Any]:
+    if value in (None, ""):
+        return []
+    if isinstance(value, list):
+        return value
+    if isinstance(value, tuple):
+        return list(value)
+    return [value]
+
+
+def normalize_path(value: Any, image_root: Path | None) -> str:
+    path = str(value or "").strip()
+    if not path:
+        return ""
+    if image_root and not Path(path).is_absolute() and not path.startswith(("http://", "https://")):
+        while path.startswith("../"):
+            path = path[3:]
+        if path.startswith("./"):
+            path = path[2:]
+        return (image_root / path).as_posix()
+    return Path(path).as_posix() if not path.startswith(("http://", "https://")) else path
+
+
+def resolve_image_paths(record: dict[str, Any], image_root: Path | None) -> list[str]:
+    values: list[Any] = []
+    for key in (
+        "image_paths",
+        "images",
+        "frames",
+        "frame_paths",
+        "camera_paths",
+        "cam_images",
+        "cams",
+    ):
+        raw = record.get(key)
+        if not raw:
+            continue
+        if isinstance(raw, dict):
+            values.extend(raw.values())
+        else:
+            values.extend(as_list(raw))
+    if not values:
+        single = first_present(
+            record,
+            ["image", "image_path", "img", "img_path", "filename", "file_name", "frame_path"],
+            "",
+        )
+        values.extend(as_list(single))
+    normalized = []
+    for value in values:
+        if isinstance(value, dict):
+            value = first_present(value, ["image", "image_path", "path", "filename", "file_name"], "")
+        path = normalize_path(value, image_root)
+        if path:
+            normalized.append(path)
+    return normalized
+
+
 def resolve_image(record: dict[str, Any], image_root: Path | None) -> str:
-    image_value = first_present(
-        record,
-        ["image", "image_path", "img", "img_path", "filename", "file_name", "frame_path"],
-        "",
-    )
-    if isinstance(image_value, list):
-        image_value = image_value[0] if image_value else ""
-    image_path = str(image_value)
-    if image_root and image_path and not Path(image_path).is_absolute():
-        return (image_root / image_path).as_posix()
-    return Path(image_path).as_posix() if image_path else ""
+    image_paths = resolve_image_paths(record, image_root)
+    return image_paths[0] if image_paths else ""
+
+
+def resolve_video(record: dict[str, Any], image_root: Path | None) -> str:
+    video_value = first_present(record, ["video", "video_path", "clip", "clip_path"], "")
+    return normalize_path(video_value, image_root)
 
 
 def infer_task_type(source: str, record: dict[str, Any]) -> str:
     text = json.dumps(record, ensure_ascii=False).lower()
+    if source in {"nuscenes_qa", "drivelm", "drivebench", "generic_vqa"}:
+        return INTELLI_COCKPIT_TASK
     if source in {"drive_and_act", "dmd"}:
         return "cabin_understanding"
     if "inside" in text or "interior" in text or "driver" in text or "cabin" in text:
@@ -189,17 +318,30 @@ def infer_suggestion(record: dict[str, Any], answer_text: str) -> str:
 
 
 def normalize_answer(source: str, task_type: str, record: dict[str, Any]) -> dict[str, Any]:
-    answer_keys = ["reference", "gt_answer", "answer", "response", "label", "activity"]
+    answer_keys = [
+        "reference",
+        "gt_answer",
+        "gt",
+        "answer",
+        "answers",
+        "response",
+        "label",
+        "activity",
+    ]
     answer = first_present(record, answer_keys, "")
+    if isinstance(answer, list) and answer:
+        answer = answer[0]
     if isinstance(answer, dict):
         return answer
     answer_text = normalize_reference(answer)
+    category = str(first_present(record, ["category", "query_type", "task", "question_type", "layer"], ""))
+    subcategory = str(first_present(record, ["subcategory", "sub_category", "tag", "question_family"], ""))
     if task_type == INTELLI_COCKPIT_TASK:
         return {
             "task": INTELLI_COCKPIT_TASK,
             "answer": answer_text,
-            "category": str(first_present(record, ["category"], "")),
-            "subcategory": str(first_present(record, ["subcategory", "sub_category"], "")),
+            "category": category,
+            "subcategory": subcategory,
             "reason": answer_text,
         }
     if task_type == "cabin_understanding":
@@ -229,18 +371,33 @@ def convert_record(
 ) -> dict[str, Any]:
     task_type = infer_task_type(source, record)
     question = first_present(record, ["instruction", "question", "query", "prompt"], "")
+    image_paths = resolve_image_paths(record, image_root)
+    video_path = resolve_video(record, image_root)
+    answer = normalize_answer(source, task_type, record)
+    capability = infer_external_vqa_capability(
+        instruction=str(question),
+        category=str(answer.get("category") or first_present(record, ["category", "query_type", "task", "question_type", "layer"], "")),
+        subcategory=str(answer.get("subcategory") or first_present(record, ["subcategory", "sub_category", "tag", "question_family"], "")),
+        reference=str(answer.get("answer") or answer.get("reason") or ""),
+    )
     scenario = {
         "benchmark_source": source,
         "split": split,
-        "original_id": first_present(record, ["id", "sample_id", "token", "question_id"], f"{index:06d}"),
-        "category": first_present(record, ["category", "query_type", "task", "activity"], ""),
-        "subcategory": first_present(record, ["subcategory", "sub_category"], ""),
+        "original_id": first_present(record, ["id", "sample_id", "token", "question_id", "qid"], f"{index:06d}"),
+        "scene_token": first_present(record, ["scene_token", "scene_id", "scene"], ""),
+        "sample_token": first_present(record, ["sample_token", "sample_id", "token"], ""),
+        "category": first_present(record, ["category", "query_type", "task", "activity", "question_type", "layer"], ""),
+        "subcategory": first_present(record, ["subcategory", "sub_category", "tag", "question_family"], ""),
+        "capability": capability,
         "shooting_angle": first_present(record, ["shooting_angle", "camera", "view"], ""),
         "difficulty": first_present(record, ["difficulty"], "unknown"),
+        "image_paths": image_paths,
+        "video_path": video_path,
     }
     return {
         "id": f"{source}_{split}_{index:06d}",
-        "image": resolve_image(record, image_root),
+        "image": image_paths[0] if image_paths else "",
+        "video": video_path,
         "vehicle_state": {
             "speed": first_present(record, ["speed"], 0),
             "weather": first_present(record, ["weather", "scene_condition", "weather_conditions"], "unknown"),
@@ -258,11 +415,12 @@ def convert_record(
             "shooting_angle": scenario["shooting_angle"],
         },
         "instruction": str(question),
-        "answer": normalize_answer(source, task_type, record),
+        "answer": answer,
         "meta": {
             "task_type": task_type,
             "source": "external_benchmark",
             "benchmark_source": source,
+            "capability": capability,
             "difficulty": scenario["difficulty"],
             "external": scenario,
         },
@@ -273,7 +431,7 @@ def run(args: argparse.Namespace) -> None:
     source = args.source
     if source not in SUPPORTED_SOURCES:
         raise ValueError(f"unsupported source {source}; choose from {sorted(SUPPORTED_SOURCES)}")
-    records = load_records(Path(args.input))
+    records = flatten_drivelm_records(Path(args.input)) if source == "drivelm" else load_records(Path(args.input))
     if args.limit and args.limit > 0:
         records = records[: args.limit]
     image_root = Path(args.image_root) if args.image_root else None

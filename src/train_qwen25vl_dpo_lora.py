@@ -21,7 +21,7 @@ ROOT = Path(__file__).resolve().parent.parent
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from src.eval.base_infer_qwen25vl import make_prompt, select_frame_paths
+from src.eval.base_infer_qwen25vl import make_prompt, sample_input_mode, select_frame_paths
 
 
 def progress_iter(iterable: Any, total: int, desc: str) -> Any:
@@ -79,7 +79,17 @@ def build_messages(sample: dict[str, Any], assistant: dict[str, Any] | None, arg
         if args.max_pixels > 0:
             item["max_pixels"] = args.max_pixels
         content.append(item)
-    content.append({"type": "text", "text": make_prompt(sample, args.prompt_variant)})
+    content.append(
+        {
+            "type": "text",
+            "text": make_prompt(
+                sample,
+                args.prompt_variant,
+                perception_mode=args.perception_mode,
+                input_mode=sample_input_mode(sample, args.text_only),
+            ),
+        }
+    )
     messages = [{"role": "user", "content": content}]
     if assistant is not None:
         messages.append({"role": "assistant", "content": answer_json(assistant)})
@@ -292,6 +302,7 @@ def main() -> None:
         default="spatial",
         choices=["current", "temporal", "spatial", "evidence"],
     )
+    parser.add_argument("--perception_mode", default="full", choices=["full", "none"])
     parser.add_argument("--max_pixels", type=int, default=200704)
     parser.add_argument("--text_only", action="store_true")
     parser.add_argument("--use_fast_processor", action="store_true")

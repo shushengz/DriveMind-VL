@@ -16,17 +16,67 @@ def infer_external_vqa_capability(
     reference: str = "",
 ) -> str:
     blob = build_text_blob(instruction, category, subcategory, reference)
-    if any(term in blob for term in ("quantitative", "how many", "count", "number of")):
+    if any(term in blob for term in ("quantitative", "how many", "count", "number of", "how much", "how far", "distance")):
         return "counting"
-    if any(term in blob for term in ("object_recognition", "recognition", "brand", "type recognition", "license", "color", "what brand")):
+    if any(
+        term in blob
+        for term in (
+            "object_recognition",
+            "recognition",
+            "brand",
+            "type recognition",
+            "license",
+            "color",
+            "what brand",
+            "what object",
+            "traffic light",
+            "traffic sign",
+        )
+    ):
         return "object_recognition"
     if any(term in blob for term in ("weather_road_condition", "weather", "rain", "fog", "wet", "reflective", "road condition", "environmental")):
         return "weather_road_condition"
-    if any(term in blob for term in ("spatial_localization", "spatial", "localization", "left", "right", "front", "rear", "ahead", "behind", "side", "where")):
+    if any(
+        term in blob
+        for term in (
+            "spatial_localization",
+            "spatial",
+            "localization",
+            "left",
+            "right",
+            "front",
+            "rear",
+            "ahead",
+            "behind",
+            "side",
+            "where",
+            "lane",
+            "near",
+            "next to",
+            "in front of",
+            "on the road",
+            "relative",
+        )
+    ):
         return "spatial_localization"
-    if any(term in blob for term in ("description", "what's ahead", "what is ahead", "what can you see")):
+    if any(term in blob for term in ("description", "what's ahead", "what is ahead", "what can you see", "scene", "perception")):
         return "scene_completeness"
-    if any(term in blob for term in ("reasoning_world_knowledge", "reasoning", "world knowledge", "why")):
+    if any(
+        term in blob
+        for term in (
+            "reasoning_world_knowledge",
+            "reasoning",
+            "world knowledge",
+            "why",
+            "planning",
+            "prediction",
+            "behavior",
+            "motion",
+            "action",
+            "should",
+            "intention",
+        )
+    ):
         return "reasoning_world_knowledge"
     return "other"
 

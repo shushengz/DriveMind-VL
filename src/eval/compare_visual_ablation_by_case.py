@@ -20,6 +20,29 @@ from src.eval.run_all_eval import load_jsonl, token_f1, write_jsonl
 
 
 SETTING_ORDER = ("normal", "text_only", "wrong_image", "blank_image")
+STOPWORDS = {
+    "the",
+    "a",
+    "an",
+    "and",
+    "or",
+    "to",
+    "of",
+    "in",
+    "on",
+    "at",
+    "for",
+    "with",
+    "is",
+    "are",
+    "be",
+    "this",
+    "that",
+    "there",
+    "vehicle",
+    "car",
+    "ego",
+}
 
 
 def index_rows(path: Path) -> dict[str, dict[str, Any]]:
@@ -35,6 +58,45 @@ def score_prediction(row: dict[str, Any]) -> float:
     return token_f1(pred_text, gold_text)
 
 
+def prediction_text(row: dict[str, Any]) -> str:
+    parsed = parse_model_output(row.get("prediction"))
+    if parsed["ok"] and isinstance(parsed.get("data"), dict):
+        data = parsed["data"]
+        return str(data.get("answer") or "") + " " + str(data.get("reason") or "")
+    return str(row.get("prediction") or "")
+
+
+def tokens(text: Any) -> set[str]:
+    value = "".join(ch.lower() if ch.isalnum() else " " for ch in str(text or ""))
+    return {token for token in value.split() if len(token) >= 3 and token not in STOPWORDS}
+
+
+def visual_terms(row: dict[str, Any]) -> set[str]:
+    perception = row.get("perception") if isinstance(row.get("perception"), dict) else {}
+    objects = perception.get("objects") if isinstance(perception.get("objects"), (dict, list)) else {}
+    terms: set[str] = set()
+    if isinstance(objects, dict):
+        iterable = objects.values()
+    else:
+        iterable = objects
+    for item in iterable:
+        if not isinstance(item, dict):
+            continue
+        for key in ("Category", "category", "Status", "status", "Visual_description", "visual_description", "description"):
+            terms.update(tokens(item.get(key, "")))
+    terms.update(tokens(perception.get("scene", "")))
+    terms.update(tokens(perception.get("risk_hint", "")))
+    return terms
+
+
+def visual_term_overlap(row: dict[str, Any]) -> float:
+    terms = visual_terms(row)
+    if not terms:
+        return 0.0
+    pred_terms = tokens(prediction_text(row))
+    return round(len(terms & pred_terms) / len(terms), 4)
+
+
 def build_case_rows(indexed: dict[str, dict[str, dict[str, Any]]]) -> list[dict[str, Any]]:
     case_rows: list[dict[str, Any]] = []
     ids = sorted(set.intersection(*(set(rows.keys()) for rows in indexed.values())))
@@ -42,6 +104,7 @@ def build_case_rows(indexed: dict[str, dict[str, dict[str, Any]]]) -> list[dict[
         normal_row = indexed["normal"][sample_id]
         scores = {setting: score_prediction(indexed[setting][sample_id]) for setting in SETTING_ORDER}
         refusals = {setting: is_refusal_prediction(indexed[setting][sample_id].get("prediction")) for setting in SETTING_ORDER}
+        overlaps = {setting: visual_term_overlap(indexed[setting][sample_id]) for setting in SETTING_ORDER}
         control_max = max(scores["text_only"], scores["wrong_image"], scores["blank_image"])
         case_rows.append(
             {
@@ -55,6 +118,10 @@ def build_case_rows(indexed: dict[str, dict[str, dict[str, Any]]]) -> list[dict[
                 "blank_image_f1": round(scores["blank_image"], 4),
                 "control_max_f1": round(control_max, 4),
                 "visual_dependency_gap": round(scores["normal"] - control_max, 4),
+                "normal_visual_term_overlap": overlaps["normal"],
+                "text_only_visual_term_overlap": overlaps["text_only"],
+                "wrong_image_visual_term_overlap": overlaps["wrong_image"],
+                "blank_image_visual_term_overlap": overlaps["blank_image"],
                 "normal_refusal": refusals["normal"],
                 "text_only_refusal": refusals["text_only"],
                 "wrong_image_refusal": refusals["wrong_image"],
@@ -78,6 +145,18 @@ def summarize_gap(case_rows: list[dict[str, Any]]) -> dict[str, Any]:
         "blank_image_f1": round(sum(float(row["blank_image_f1"]) for row in case_rows) / count, 4),
         "control_max_f1": round(sum(float(row["control_max_f1"]) for row in case_rows) / count, 4),
         "visual_dependency_gap": round(sum(float(row["visual_dependency_gap"]) for row in case_rows) / count, 4),
+        "normal_visual_term_overlap": round(
+            sum(float(row.get("normal_visual_term_overlap", 0.0)) for row in case_rows) / count, 4
+        ),
+        "text_only_visual_term_overlap": round(
+            sum(float(row.get("text_only_visual_term_overlap", 0.0)) for row in case_rows) / count, 4
+        ),
+        "wrong_image_visual_term_overlap": round(
+            sum(float(row.get("wrong_image_visual_term_overlap", 0.0)) for row in case_rows) / count, 4
+        ),
+        "blank_image_visual_term_overlap": round(
+            sum(float(row.get("blank_image_visual_term_overlap", 0.0)) for row in case_rows) / count, 4
+        ),
         "positive_gap_rate": round(sum(1 for row in case_rows if float(row["visual_dependency_gap"]) > 0) / count, 4),
         "normal_refusal_rate": round(sum(1 for row in case_rows if row.get("normal_refusal")) / count, 4),
         "text_only_refusal_rate": round(sum(1 for row in case_rows if row.get("text_only_refusal")) / count, 4),

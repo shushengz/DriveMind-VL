@@ -151,22 +151,68 @@ PROMPT_VARIANTS = {
         "and whether they are in front, left, right, behind, near, or far. Use this spatial evidence in reason."
     ),
     "evidence": (
-        "Answer in two steps inside the JSON: keep answer concise, and make reason cite only observable visual evidence. "
-        "If the image does not provide enough evidence, say so in reason instead of guessing."
+        "Answer in two steps inside the JSON: keep answer concise, and make reason cite only observable visual evidence "
+        "from the current image or ordered frame sequence. Do not rely on common driving priors when the visual evidence "
+        "is insufficient. If the frames do not provide enough evidence, say so in reason instead of guessing."
     ),
 }
 
 
-def make_prompt(sample: dict[str, Any], prompt_variant: str = "current") -> str:
+def sample_input_mode(sample: dict[str, Any], text_only: bool = False) -> str:
+    if text_only:
+        return "text_only"
+    meta = sample.get("meta", {}) if isinstance(sample.get("meta"), dict) else {}
+    mode = str(meta.get("train_input_mode") or sample.get("train_input_mode") or "").strip()
+    if mode in {"normal", "text_only", "wrong_image", "blank_image"}:
+        return mode
+    ablation = str(meta.get("visual_ablation") or "").strip()
+    if ablation in {"wrong_image", "blank_image"}:
+        return ablation
+    return "normal"
+
+
+def visual_input_rule(input_mode: str) -> str:
+    if input_mode == "text_only":
+        return (
+            "No image or video input is provided in this run. For visual-scene questions, return an answer only if it is "
+            "explicitly supported by non-visual context; otherwise state that the visual evidence is insufficient."
+        )
+    if input_mode == "blank_image":
+        return (
+            "The supplied visual input may contain no usable driving-scene evidence. Ignore any placeholder text in blank "
+            "frames and state insufficient visual evidence instead of guessing."
+        )
+    return (
+        "Ground scene-specific answers in the available visual input. If the visible evidence is missing, ambiguous, or "
+        "insufficient for the requested fact, say so in the JSON reason."
+    )
+
+
+def make_prompt(
+    sample: dict[str, Any],
+    prompt_variant: str = "current",
+    perception_mode: str = "full",
+    input_mode: str = "normal",
+) -> str:
     vehicle_state = json.dumps(sample.get("vehicle_state", {}), ensure_ascii=False)
-    perception = json.dumps(sample.get("perception", {}), ensure_ascii=False)
+    if perception_mode == "none":
+        perception_obj: dict[str, Any] = {}
+        perception_note = (
+            "Perception JSON is intentionally withheld for this grounding run. Do not assume object annotations that are "
+            "not visible in the image or frame sequence."
+        )
+    else:
+        perception_obj = sample.get("perception", {}) if isinstance(sample.get("perception"), dict) else {}
+        perception_note = "Use perception JSON only as auxiliary context when it is provided."
+    perception = json.dumps(perception_obj, ensure_ascii=False)
     task_type = sample.get("meta", {}).get("task_type", "")
     schema = json.dumps(SCHEMAS.get(task_type, {"task": task_type}), ensure_ascii=False)
     hint = TASK_HINTS.get(task_type, "")
     variant_hint = PROMPT_VARIANTS.get(prompt_variant, "")
+    input_rule = visual_input_rule(input_mode)
     return (
         "You are DriveMind-VL, an in-vehicle multimodal assistant.\n"
-        "Use the image or video, vehicle_state, perception JSON, and user instruction to complete the task.\n"
+        "Use the available image or video, vehicle_state, perception JSON when provided, and user instruction to complete the task.\n"
         "If the visual input is a synthetic placeholder, ignore any rendered placeholder text in the image.\n"
         "Return ONLY one valid JSON object. Do not use Markdown. Do not add explanations outside JSON.\n"
         f"The task field must be exactly: {task_type}.\n"
@@ -174,6 +220,8 @@ def make_prompt(sample: dict[str, Any], prompt_variant: str = "current") -> str:
         f"Allowed tools: {', '.join(ALLOWED_TOOLS)}.\n"
         f"Task-specific rules: {hint}\n"
         f"Prompt variant rules: {variant_hint}\n"
+        f"Visual input rules: {input_rule}\n"
+        f"Perception rules: {perception_note}\n"
         "The JSON must follow this expected schema:\n"
         f"{schema}\n\n"
         f"[Instruction]\n{sample.get('instruction', '')}\n\n"
@@ -198,6 +246,7 @@ def run_dry(samples: list[dict[str, Any]], output_path: Path) -> int:
                 "prediction": perturb_prediction(sample, idx),
                 "gold": sample.get("answer", {}),
                 "vehicle_state": sample.get("vehicle_state", {}),
+                "perception": sample.get("perception", {}),
                 "meta": sample.get("meta", {}),
             }
         )
@@ -243,6 +292,20 @@ def existing_image_paths(sample: dict[str, Any], args: argparse.Namespace) -> li
         if image_path.exists():
             image_paths.append(image_path)
     return image_paths
+
+
+def existing_video_path(sample: dict[str, Any], text_only: bool) -> Path | None:
+    if text_only:
+        return None
+    external = sample.get("meta", {}).get("external", {})
+    raw_video = sample.get("video", "")
+    if not raw_video and isinstance(external, dict):
+        raw_video = external.get("video_path", "")
+    raw_video = str(raw_video or "").strip()
+    if not raw_video:
+        return None
+    video_path = Path(raw_video)
+    return video_path if video_path.exists() and video_path.is_file() else None
 
 
 def append_image_content(content: list[dict[str, Any]], image_paths: list[Path], max_pixels: int) -> None:
@@ -306,14 +369,25 @@ def run_real(samples: list[dict[str, Any]], output_path: Path, args: argparse.Na
     model, processor = load_real_model(args)
     rows = []
     for sample in progress_iter(samples, total=len(samples), desc="qwen inference"):
+        input_mode = sample_input_mode(sample, args.text_only)
         image_paths = existing_image_paths(sample, args)
-        video_path = Path(sample.get("video", "") or sample.get("meta", {}).get("external", {}).get("video_path", ""))
+        video_path = existing_video_path(sample, args.text_only)
         content: list[dict[str, Any]] = []
         if image_paths:
             append_image_content(content, image_paths, args.max_pixels)
-        elif video_path.exists() and not args.text_only:
+        elif video_path is not None:
             content.append({"type": "video", "video": str(video_path)})
-        content.append({"type": "text", "text": make_prompt(sample, args.prompt_variant)})
+        content.append(
+            {
+                "type": "text",
+                "text": make_prompt(
+                    sample,
+                    args.prompt_variant,
+                    perception_mode=args.perception_mode,
+                    input_mode=input_mode,
+                ),
+            }
+        )
         messages = [{"role": "user", "content": content}]
 
         text = processor.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
@@ -341,18 +415,21 @@ def run_real(samples: list[dict[str, Any]], output_path: Path, args: argparse.Na
                 "prediction": prediction,
                 "gold": sample.get("answer", {}),
                 "vehicle_state": sample.get("vehicle_state", {}),
+                "perception": sample.get("perception", {}),
                 "meta": sample.get("meta", {}),
                 "media": {
                     "image": sample.get("image", ""),
                     "image_paths": [path.as_posix() for path in image_paths],
                     "num_images": len(image_paths),
-                    "video": str(video_path) if video_path.exists() else "",
+                    "video": str(video_path) if video_path is not None else "",
                 },
                 "inference_config": {
                     "prompt_variant": args.prompt_variant,
                     "frame_strategy": args.frame_strategy,
                     "max_images": args.max_images,
                     "text_only": args.text_only,
+                    "input_mode": input_mode,
+                    "perception_mode": args.perception_mode,
                 },
             }
         )
@@ -382,6 +459,12 @@ def main() -> None:
         default="current",
         choices=sorted(PROMPT_VARIANTS),
         help="Prompt variant for prompt/frame ablation.",
+    )
+    parser.add_argument(
+        "--perception_mode",
+        default="full",
+        choices=["full", "none"],
+        help="Use full perception JSON in prompts, or hide it for strict visual-grounding evaluation/training.",
     )
     parser.add_argument("--load_in_4bit", action="store_true")
     parser.add_argument("--load_in_8bit", action="store_true")

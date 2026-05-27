@@ -18,7 +18,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from src.eval.base_infer_qwen25vl import make_prompt, select_frame_paths
+from src.eval.base_infer_qwen25vl import make_prompt, sample_input_mode, select_frame_paths
 
 
 def progress_iter(iterable: Any, total: int, desc: str) -> Any:
@@ -72,7 +72,17 @@ def build_messages(sample: dict[str, Any], include_assistant: bool, args: argpar
         if args.max_pixels > 0:
             item["max_pixels"] = args.max_pixels
         content.append(item)
-    content.append({"type": "text", "text": make_prompt(sample, args.prompt_variant)})
+    content.append(
+        {
+            "type": "text",
+            "text": make_prompt(
+                sample,
+                args.prompt_variant,
+                perception_mode=args.perception_mode,
+                input_mode=sample_input_mode(sample, args.text_only),
+            ),
+        }
+    )
     messages = [{"role": "user", "content": content}]
     if include_assistant:
         answer = json.dumps(sample.get("answer", {}), ensure_ascii=False, separators=(",", ":"))
@@ -117,10 +127,13 @@ def encode_sample(processor: Any, sample: dict[str, Any], device: str, args: arg
 def main() -> None:
     parser = argparse.ArgumentParser(description="Run minimal Qwen2.5-VL LoRA SFT smoke training.")
     parser.add_argument("--model_name_or_path", required=True)
+    parser.add_argument("--init_adapter_path", default="", help="Optional trainable LoRA adapter to continue from.")
     parser.add_argument("--train_file", default="data/processed/drivemind_train.jsonl")
     parser.add_argument("--output_dir", default="outputs/checkpoints/qwen25vl_3b_lora_smoke")
     parser.add_argument("--max_samples", type=int, default=80)
     parser.add_argument("--epochs", type=int, default=1)
+    parser.add_argument("--max_steps", type=int, default=0, help="Stop after this many optimizer steps. 0 means full epochs.")
+    parser.add_argument("--save_steps", type=int, default=0, help="Save checkpoint-step-XXXXXX every N optimizer steps.")
     parser.add_argument("--learning_rate", type=float, default=1e-4)
     parser.add_argument("--gradient_accumulation_steps", type=int, default=8)
     parser.add_argument("--lora_rank", type=int, default=16)
@@ -140,6 +153,7 @@ def main() -> None:
         default="current",
         choices=["current", "temporal", "spatial", "evidence"],
     )
+    parser.add_argument("--perception_mode", default="full", choices=["full", "none"])
     parser.add_argument("--max_pixels", type=int, default=200704)
     parser.add_argument("--text_only", action="store_true")
     parser.add_argument("--shuffle_seed", type=int, default=-1, help="Shuffle training samples with this seed when >= 0.")
@@ -156,7 +170,7 @@ def main() -> None:
         return
 
     import torch
-    from peft import LoraConfig, TaskType, get_peft_model
+    from peft import LoraConfig, PeftModel, TaskType, get_peft_model
     from transformers import AutoProcessor, Qwen2_5_VLForConditionalGeneration
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -176,23 +190,29 @@ def main() -> None:
         model.enable_input_require_grads()
         model.config.use_cache = False
 
-    lora_config = LoraConfig(
-        r=args.lora_rank,
-        lora_alpha=args.lora_alpha,
-        lora_dropout=0.05,
-        bias="none",
-        task_type=TaskType.CAUSAL_LM,
-        target_modules=["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"],
-    )
-    model = get_peft_model(model, lora_config)
+    if args.init_adapter_path:
+        print(f"loading trainable init adapter: {args.init_adapter_path}", flush=True)
+        model = PeftModel.from_pretrained(model, args.init_adapter_path, is_trainable=True)
+    else:
+        lora_config = LoraConfig(
+            r=args.lora_rank,
+            lora_alpha=args.lora_alpha,
+            lora_dropout=0.05,
+            bias="none",
+            task_type=TaskType.CAUSAL_LM,
+            target_modules=["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"],
+        )
+        model = get_peft_model(model, lora_config)
     model.print_trainable_parameters()
     model.train()
 
     optimizer = torch.optim.AdamW((p for p in model.parameters() if p.requires_grad), lr=args.learning_rate)
-    total_steps = args.epochs * math.ceil(len(samples) / args.gradient_accumulation_steps)
+    full_total_steps = args.epochs * math.ceil(len(samples) / args.gradient_accumulation_steps)
+    total_steps = min(full_total_steps, args.max_steps) if args.max_steps and args.max_steps > 0 else full_total_steps
     print(f"epochs={args.epochs} optimizer_steps~={total_steps}", flush=True)
 
     global_step = 0
+    stop_training = False
     optimizer.zero_grad(set_to_none=True)
     for epoch in range(args.epochs):
         epoch_bar = progress_iter(samples, total=len(samples), desc=f"sft epoch {epoch + 1}/{args.epochs}")
@@ -209,6 +229,17 @@ def main() -> None:
                 if hasattr(epoch_bar, "set_postfix"):
                     epoch_bar.set_postfix(step=global_step, loss=f"{raw_loss:.4f}")
                 print(f"epoch={epoch + 1} step={global_step} loss={raw_loss:.4f}", flush=True)
+                if args.save_steps and args.save_steps > 0 and global_step % args.save_steps == 0:
+                    checkpoint_dir = Path(args.output_dir) / f"checkpoint-step-{global_step:06d}"
+                    checkpoint_dir.mkdir(parents=True, exist_ok=True)
+                    model.save_pretrained(checkpoint_dir)
+                    processor.save_pretrained(checkpoint_dir)
+                    print(f"saved checkpoint to {checkpoint_dir}", flush=True)
+                if args.max_steps and args.max_steps > 0 and global_step >= args.max_steps:
+                    stop_training = True
+                    break
+        if stop_training:
+            break
 
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)

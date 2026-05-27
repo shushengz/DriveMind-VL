@@ -1,0 +1,21 @@
+# DRAFT ONLY: Reward v2.2 is not ready. Execution is forbidden until new authorization.
+enabled: false
+model: /root/autodl-tmp/models/Qwen3-VL-4B-Instruct
+init_adapter: checkpoints/qwen3_vl_4b_lora_sft_lingoqa_smoke
+dataset: data/qwen3_vl/ms_swift/grpo_lite_prompts.jsonl
+reward_fn: src/rl/reward_vc_grpo_lite_v2_3.py
+reward_status: "v2.2_not_ready_wait_for_future_v2.3"
+output_dir: checkpoints/qwen3_vl_4b_grpo_lite_smoke
+group_size: 4
+temperature: 0.7
+max_new_tokens: 64
+max_steps: 50
+learning_rate: 5.0e-7
+kl_coef: 0.02
+reference_model: frozen_init_model_or_adapter
+bf16: true
+vllm: optional
+gradient_checkpointing: true
+heldout_training_forbidden: true
+drivelm_ood_training_forbidden: true
+warning: "Do not execute. Reward readiness has not passed; only a future explicitly approved 50-step smoke is permissible."

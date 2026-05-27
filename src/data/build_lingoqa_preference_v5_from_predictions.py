@@ -186,6 +186,7 @@ def add_control_pairs(
     source_by_id: dict[str, dict[str, Any]],
     predictions: dict[str, dict[str, Any]],
     gold_by_id: dict[str, dict[str, Any]],
+    normal_predictions: dict[str, dict[str, Any]] | None,
     args: argparse.Namespace,
     counters: Counter[str],
     f1_sums: dict[str, float],
@@ -202,6 +203,18 @@ def add_control_pairs(
             counters[f"{mode}_skipped_missing_source"] += 1
             continue
         gold = answer_obj(gold_row)
+        normal_pred_f1 = None
+        if args.min_normal_prediction_f1_for_control > 0.0:
+            normal_pred_row = normal_predictions.get(sample_id) if normal_predictions else None
+            if normal_pred_row is None:
+                counters[f"{mode}_skipped_missing_normal_prediction"] += 1
+                continue
+            normal_pred = prediction_obj(normal_pred_row.get("prediction"))
+            normal_pred_f1 = token_f1(answer_text(normal_pred), answer_text(gold))
+            if normal_pred_f1 < args.min_normal_prediction_f1_for_control:
+                counters[f"{mode}_skipped_low_normal_prediction_f1"] += 1
+                continue
+
         rejected = prediction_obj(pred_row.get("prediction"))
         pred_text = answer_text(rejected)
         pred_f1 = token_f1(pred_text, answer_text(gold))
@@ -229,6 +242,7 @@ def add_control_pairs(
                 meta_extra={
                     "rejected_source": "sft_v2_prediction",
                     "prediction_f1_vs_gold": round(pred_f1, 4),
+                    "normal_prediction_f1_vs_gold": round(normal_pred_f1, 4) if normal_pred_f1 is not None else None,
                     "prediction_was_refusal": False,
                 },
             )
@@ -256,7 +270,24 @@ def main() -> None:
     parser.add_argument("--normal_sft_anchor_weight", type=float, default=1.0)
     parser.add_argument("--normal_bad_f1_threshold", type=float, default=0.15)
     parser.add_argument("--min_control_f1", type=float, default=0.05)
+    parser.add_argument(
+        "--min_normal_prediction_f1_for_control",
+        type=float,
+        default=0.0,
+        help="Only mine control pairs for samples whose normal prediction reaches this F1.",
+    )
     parser.add_argument("--include_all_non_refusal_controls", action="store_true", default=True)
+    parser.add_argument(
+        "--filter_low_overlap_controls",
+        action="store_false",
+        dest="include_all_non_refusal_controls",
+        help="Respect --min_control_f1 instead of keeping every non-refusal control prediction.",
+    )
+    parser.add_argument(
+        "--control_modes",
+        default="text_only,wrong_image,blank_image",
+        help="Comma-separated control modes to mine: text_only,wrong_image,blank_image.",
+    )
     parser.add_argument("--max_text_only_pairs", type=int, default=0)
     parser.add_argument("--max_blank_image_pairs", type=int, default=0)
     parser.add_argument("--max_wrong_image_pairs", type=int, default=0)
@@ -279,9 +310,13 @@ def main() -> None:
     f1_sums: dict[str, float] = defaultdict(float)
 
     add_normal_pairs(pairs, normal_rows, normal_predictions, args, counters)
-    add_control_pairs(pairs, "text_only", normal_by_id, text_predictions, normal_by_id, args, counters, f1_sums)
-    add_control_pairs(pairs, "wrong_image", wrong_by_id, wrong_predictions, normal_by_id, args, counters, f1_sums)
-    add_control_pairs(pairs, "blank_image", blank_by_id, blank_predictions, normal_by_id, args, counters, f1_sums)
+    enabled_modes = {item.strip() for item in args.control_modes.split(",") if item.strip()}
+    if "text_only" in enabled_modes:
+        add_control_pairs(pairs, "text_only", normal_by_id, text_predictions, normal_by_id, normal_predictions, args, counters, f1_sums)
+    if "wrong_image" in enabled_modes:
+        add_control_pairs(pairs, "wrong_image", wrong_by_id, wrong_predictions, normal_by_id, normal_predictions, args, counters, f1_sums)
+    if "blank_image" in enabled_modes:
+        add_control_pairs(pairs, "blank_image", blank_by_id, blank_predictions, normal_by_id, normal_predictions, args, counters, f1_sums)
 
     random.Random(args.seed).shuffle(pairs)
     write_jsonl(ROOT / args.output, pairs)
@@ -294,6 +329,10 @@ def main() -> None:
         "text_predictions": args.text_predictions,
         "wrong_predictions": args.wrong_predictions,
         "blank_predictions": args.blank_predictions,
+        "control_modes": sorted(enabled_modes),
+        "min_control_f1": args.min_control_f1,
+        "include_all_non_refusal_controls": args.include_all_non_refusal_controls,
+        "min_normal_prediction_f1_for_control": args.min_normal_prediction_f1_for_control,
         "output": args.output,
         "normal_rows": len(normal_rows),
         "preference_pairs": len(pairs),
